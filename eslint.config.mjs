@@ -22,6 +22,7 @@ export default [
     },
     plugins: {
       '@typescript-eslint': tsPlugin,
+      prettier: prettier,
     },
     rules: {
       'no-unused-vars': 'off',
@@ -30,5 +31,4 @@ export default [
       '@typescript-eslint/no-empty-object-type': 'off',
     },
   },
-  prettier,
 ];
