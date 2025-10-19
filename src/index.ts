@@ -1,28 +1,15 @@
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
-import { gql } from 'graphql-tag';
 import bodyParser from 'body-parser';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@as-integrations/express5';
 
-import { buildContext } from './graphql/context';
+import { typeDefs, buildContext, resolvers } from './graphql';
 
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
-
-const typeDefs = gql`
-  type Query {
-    hello: String
-  }
-`;
-
-const resolvers = {
-  Query: {
-    hello: () => 'Hello, world!',
-  },
-};
 
 const app = express();
 app.use(cors());
