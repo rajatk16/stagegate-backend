@@ -3,6 +3,14 @@ import { gql } from 'graphql-tag';
 export const typeDefs = gql`
   scalar DateTime
 
+  type Query {
+    me: User
+  }
+
+  type Mutation {
+    updateUser(input: UpdateUserInput!): User!
+  }
+
   type User {
     id: ID!
     name: String!
@@ -11,7 +19,7 @@ export const typeDefs = gql`
     bio: String
     occupation: Occupation
     contactInfo: ContactInfo
-    socialMedia: SocialMedia
+    socialMedia: [SocialMedia!]
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -33,7 +41,37 @@ export const typeDefs = gql`
   }
 
   type SocialMedia {
-    platform: String
-    handle: String
+    platform: String!
+    handle: String!
+  }
+
+  input LocationInput {
+    city: String
+    country: String
+  }
+
+  input OccupationInput {
+    company: String
+    title: String
+  }
+
+  input ContactInfoInput {
+    email: String
+    phone: String
+    website: String
+  }
+
+  input SocialMediaInput {
+    platform: String!
+    handle: String!
+  }
+
+  input UpdateUserInput {
+    name: String
+    location: LocationInput
+    bio: String
+    occupation: OccupationInput
+    contactInfo: ContactInfoInput
+    socialMedia: [SocialMediaInput!]
   }
 `;

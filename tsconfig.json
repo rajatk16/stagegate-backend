@@ -18,9 +18,9 @@
     "experimentalDecorators": true,
     "skipLibCheck": true,
     "useUnknownInCatchVariables": false,
-    "typeRoots": ["node_modules/@types", "node_modules/@adsktypes"],
+    "typeRoots": ["node_modules/@types"],
     "types": ["node"]
   },
   "exclude": ["node_modules", "dist", "build", "tests"],
-  "include": ["src", "index.ts"]
+  "include": ["src"]
 }

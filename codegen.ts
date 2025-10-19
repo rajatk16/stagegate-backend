@@ -10,6 +10,7 @@ const config: CodegenConfig = {
         scalars: {
           DateTime: 'string',
         },
+        contextType: './context#DataSourceContext',
       },
     },
   },
