@@ -4,25 +4,13 @@ import express from 'express';
 import { gql } from 'graphql-tag';
 import bodyParser from 'body-parser';
 import { ApolloServer } from '@apollo/server';
-import { initializeApp, cert } from 'firebase-admin/app';
 import { expressMiddleware } from '@as-integrations/express5';
 
-import { createContext } from './graphql/context';
+import { buildContext } from './graphql/context';
 
 dotenv.config();
 
-const firebaseProjectId = process.env.FIREBASE_PROJECT_ID || process.env.FIREABSE_PROJECT_ID;
-const firebaseClientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-const firebasePrivateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 const PORT = process.env.PORT || 3000;
-
-initializeApp({
-  credential: cert({
-    projectId: firebaseProjectId,
-    clientEmail: firebaseClientEmail,
-    privateKey: firebasePrivateKey,
-  }),
-});
 
 const typeDefs = gql`
   type Query {
@@ -50,12 +38,12 @@ const startServer = async () => {
     '/graphql',
     expressMiddleware(server, {
       context: async ({ req }) => {
-        return await createContext(req);
+        return await buildContext(req);
       },
     }),
   );
   app.listen(PORT, () => {
-    console.log(`🚀 GraphQL server running at http://localhost:${PORT}/graphql`);
+    console.log(`🚀 GraphQL server running at PORT ${PORT} at PATH /graphql`);
   });
 };
 
