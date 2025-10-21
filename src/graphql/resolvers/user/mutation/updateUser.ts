@@ -7,7 +7,10 @@ export const updateUser: MutationResolvers['updateUser'] = async (_parent, args,
   if (!context.authUser)
     throw new GraphQLError('Unauthorized', {
       extensions: {
-        code: 401,
+        code: 'UNAUTHORIZED',
+        http: {
+          status: 401,
+        },
       },
     });
 
