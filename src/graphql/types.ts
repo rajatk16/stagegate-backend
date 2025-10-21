@@ -26,16 +26,30 @@ export type Scalars = {
   DateTime: { input: string; output: string };
 };
 
+export type AuthPayload = {
+  __typename?: 'AuthPayload';
+  email: Scalars['String']['output'];
+  uid: Scalars['ID']['output'];
+  user: User;
+};
+
+export type AuthStatus = {
+  __typename?: 'AuthStatus';
+  email: Scalars['String']['output'];
+  emailVerified: Scalars['Boolean']['output'];
+  uid: Scalars['ID']['output'];
+};
+
 export type ContactInfo = {
   __typename?: 'ContactInfo';
-  email?: Maybe<Scalars['String']['output']>;
   phone?: Maybe<Scalars['String']['output']>;
+  secondaryEmail?: Maybe<Scalars['String']['output']>;
   website?: Maybe<Scalars['String']['output']>;
 };
 
 export type ContactInfoInput = {
-  email?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
+  secondaryEmail?: InputMaybe<Scalars['String']['input']>;
   website?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -52,7 +66,12 @@ export type LocationInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  signUp: AuthPayload;
   updateUser: User;
+};
+
+export type MutationSignUpArgs = {
+  input: SignUpInput;
 };
 
 export type MutationUpdateUserArgs = {
@@ -72,7 +91,14 @@ export type OccupationInput = {
 
 export type Query = {
   __typename?: 'Query';
+  authStatus?: Maybe<AuthStatus>;
   me?: Maybe<User>;
+};
+
+export type SignUpInput = {
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  password: Scalars['String']['input'];
 };
 
 export type SocialMedia = {
@@ -206,6 +232,8 @@ export type DirectiveResolverFn<
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
+  AuthPayload: ResolverTypeWrapper<AuthPayload>;
+  AuthStatus: ResolverTypeWrapper<AuthStatus>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   ContactInfo: ResolverTypeWrapper<ContactInfo>;
   ContactInfoInput: ContactInfoInput;
@@ -217,6 +245,7 @@ export type ResolversTypes = {
   Occupation: ResolverTypeWrapper<Occupation>;
   OccupationInput: OccupationInput;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
+  SignUpInput: SignUpInput;
   SocialMedia: ResolverTypeWrapper<SocialMedia>;
   SocialMediaInput: SocialMediaInput;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
@@ -226,6 +255,8 @@ export type ResolversTypes = {
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
+  AuthPayload: AuthPayload;
+  AuthStatus: AuthStatus;
   Boolean: Scalars['Boolean']['output'];
   ContactInfo: ContactInfo;
   ContactInfoInput: ContactInfoInput;
@@ -237,6 +268,7 @@ export type ResolversParentTypes = {
   Occupation: Occupation;
   OccupationInput: OccupationInput;
   Query: Record<PropertyKey, never>;
+  SignUpInput: SignUpInput;
   SocialMedia: SocialMedia;
   SocialMediaInput: SocialMediaInput;
   String: Scalars['String']['output'];
@@ -244,12 +276,30 @@ export type ResolversParentTypes = {
   User: User;
 };
 
+export type AuthPayloadResolvers<
+  ContextType = DataSourceContext,
+  ParentType extends ResolversParentTypes['AuthPayload'] = ResolversParentTypes['AuthPayload'],
+> = {
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  uid?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+};
+
+export type AuthStatusResolvers<
+  ContextType = DataSourceContext,
+  ParentType extends ResolversParentTypes['AuthStatus'] = ResolversParentTypes['AuthStatus'],
+> = {
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  emailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  uid?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+};
+
 export type ContactInfoResolvers<
   ContextType = DataSourceContext,
   ParentType extends ResolversParentTypes['ContactInfo'] = ResolversParentTypes['ContactInfo'],
 > = {
-  email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  secondaryEmail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   website?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 };
 
@@ -270,6 +320,12 @@ export type MutationResolvers<
   ContextType = DataSourceContext,
   ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation'],
 > = {
+  signUp?: Resolver<
+    ResolversTypes['AuthPayload'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationSignUpArgs, 'input'>
+  >;
   updateUser?: Resolver<
     ResolversTypes['User'],
     ParentType,
@@ -290,6 +346,7 @@ export type QueryResolvers<
   ContextType = DataSourceContext,
   ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query'],
 > = {
+  authStatus?: Resolver<Maybe<ResolversTypes['AuthStatus']>, ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
 };
 
@@ -318,6 +375,8 @@ export type UserResolvers<
 };
 
 export type Resolvers<ContextType = DataSourceContext> = {
+  AuthPayload?: AuthPayloadResolvers<ContextType>;
+  AuthStatus?: AuthStatusResolvers<ContextType>;
   ContactInfo?: ContactInfoResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
   Location?: LocationResolvers<ContextType>;

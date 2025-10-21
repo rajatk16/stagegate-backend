@@ -5,7 +5,10 @@ export const adaptUser = (user: any): User => {
   if (!user)
     throw new GraphQLError('Invalid user data', {
       extensions: {
-        code: 500,
+        code: 'INTERNAL_SERVER_ERROR',
+        http: {
+          status: 500,
+        },
       },
     });
 
@@ -23,7 +26,7 @@ export const adaptUser = (user: any): User => {
       title: user.occupation?.title ?? '',
     },
     contactInfo: {
-      email: user.contactInfo?.email ?? '',
+      secondaryEmail: user.contactInfo?.secondaryEmail ?? '',
       phone: user.contactInfo?.phone ?? '',
       website: user.contactInfo?.website ?? '',
     },
