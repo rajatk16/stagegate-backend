@@ -1,6 +1,6 @@
 import { authStatus } from './query';
 import { Resolvers } from '../../types';
-import { signUp } from './mutation/signup';
+import { signUp } from './mutation/signUp';
 
 export const resolvers: Resolvers = {
   Mutation: {
