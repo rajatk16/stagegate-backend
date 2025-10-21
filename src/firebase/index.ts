@@ -7,10 +7,12 @@ dotenv.config();
 let app: admin.app.App;
 
 if (!admin.apps.length) {
-  const creds = JSON.parse(process.env.FIREBASE_CREDENTIALS ?? '{}');
   app = admin.initializeApp({
-    credential: admin.credential.cert(creds),
-    projectId: process.env.FIREBASE_PROJECT_ID,
+    credential: admin.credential.cert({
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      projectId: process.env.FIREBASE_PROJECT_ID,
+    }),
   });
 } else {
   app = admin.app();
