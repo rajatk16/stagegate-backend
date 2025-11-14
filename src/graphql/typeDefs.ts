@@ -21,6 +21,9 @@ export const typeDefs = gql`
     # Update the current user's profile
     updateUser(input: UpdateUserInput!): User!
 
+    # Update the current user's profile picture URL
+    updateProfilePicture(url: String!): User!
+
     # Auth Mutations
 
     # Sign up a new user
@@ -35,6 +38,8 @@ export const typeDefs = gql`
     name: String!
     # The email of the user
     email: String!
+    # The profile picture of the user
+    profilePicture: String
     # The location of the user (city and country)
     location: Location
     # The bio of the user

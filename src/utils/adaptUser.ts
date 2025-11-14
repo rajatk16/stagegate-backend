@@ -36,5 +36,6 @@ export const adaptUser = (user: any): User => {
     })),
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
+    profilePicture: user.profilePicture ?? '',
   };
 };
