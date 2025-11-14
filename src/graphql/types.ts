@@ -67,11 +67,16 @@ export type LocationInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   signUp: AuthPayload;
+  updateProfilePicture: User;
   updateUser: User;
 };
 
 export type MutationSignUpArgs = {
   input: SignUpInput;
+};
+
+export type MutationUpdateProfilePictureArgs = {
+  url: Scalars['String']['input'];
 };
 
 export type MutationUpdateUserArgs = {
@@ -131,6 +136,7 @@ export type User = {
   location?: Maybe<Location>;
   name: Scalars['String']['output'];
   occupation?: Maybe<Occupation>;
+  profilePicture?: Maybe<Scalars['String']['output']>;
   socialMedia?: Maybe<Array<SocialMedia>>;
   updatedAt: Scalars['DateTime']['output'];
 };
@@ -326,6 +332,12 @@ export type MutationResolvers<
     ContextType,
     RequireFields<MutationSignUpArgs, 'input'>
   >;
+  updateProfilePicture?: Resolver<
+    ResolversTypes['User'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationUpdateProfilePictureArgs, 'url'>
+  >;
   updateUser?: Resolver<
     ResolversTypes['User'],
     ParentType,
@@ -370,6 +382,7 @@ export type UserResolvers<
   location?: Resolver<Maybe<ResolversTypes['Location']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   occupation?: Resolver<Maybe<ResolversTypes['Occupation']>, ParentType, ContextType>;
+  profilePicture?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   socialMedia?: Resolver<Maybe<Array<ResolversTypes['SocialMedia']>>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
 };
