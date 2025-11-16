@@ -1,5 +1,5 @@
 import { me } from './query';
-import { updateUser } from './mutation';
+import { updateUser, updateProfilePicture } from './mutation';
 import { Resolvers } from '../../types';
 
 export const resolvers: Resolvers = {
@@ -8,5 +8,6 @@ export const resolvers: Resolvers = {
   },
   Mutation: {
     updateUser,
+    updateProfilePicture,
   },
 };
