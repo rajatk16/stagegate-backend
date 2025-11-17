@@ -1,6 +1,6 @@
 import { me } from './query';
-import { updateUser, updateProfilePicture } from './mutation';
 import { Resolvers } from '../../types';
+import { updateUser, deleteProfilePicture, updateProfilePicture } from './mutation';
 
 export const resolvers: Resolvers = {
   Query: {
@@ -8,6 +8,7 @@ export const resolvers: Resolvers = {
   },
   Mutation: {
     updateUser,
+    deleteProfilePicture,
     updateProfilePicture,
   },
 };
