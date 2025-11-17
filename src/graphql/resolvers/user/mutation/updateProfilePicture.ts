@@ -43,7 +43,10 @@ export const updateProfilePicture: MutationResolvers['updateProfilePicture'] = a
 
   const userDocRef = context.db.collection('users').doc(context.authUser.uid);
 
-  await userDocRef.set({ profilePicture: url }, { merge: true });
+  await userDocRef.set(
+    { profilePicture: url, updatedAt: new Date().toISOString() },
+    { merge: true },
+  );
 
   const updatedUser = (await userDocRef.get()).data();
 
