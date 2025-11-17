@@ -50,10 +50,7 @@ export const deleteProfilePicture: MutationResolvers['deleteProfilePicture'] = a
   await userDocRef.set({ profilePicture: '' }, { merge: true });
 
   // Delete the profile picture from the storage
-  await context.storage
-    .bucket(process.env.FIREBASE_STORAGE_BUCKET || '')
-    .file(`profilePictures/${context.authUser.uid}`)
-    .delete();
+  await context.storageBucket.file(`profilePictures/${context.authUser.uid}`).delete();
 
   const updatedUser = (await userDocRef.get()).data();
 
