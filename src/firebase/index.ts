@@ -21,3 +21,4 @@ if (!admin.apps.length) {
 const FIRESTORE_DB_ID = process.env.FIRESTORE_DB_ID || '(default)';
 export const db = getFirestore(app, FIRESTORE_DB_ID);
 export const auth = admin.auth(app);
+export const storage = admin.storage(app);

@@ -24,6 +24,9 @@ export const typeDefs = gql`
     # Update the current user's profile picture URL
     updateProfilePicture(url: String!): User!
 
+    # Delete the current user's profile picture
+    deleteProfilePicture: User!
+
     # Auth Mutations
 
     # Sign up a new user

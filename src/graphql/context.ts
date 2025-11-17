@@ -1,8 +1,9 @@
 import { Request } from 'express';
+import { Auth } from 'firebase-admin/auth';
+import { Storage } from 'firebase-admin/storage';
 import { Firestore } from 'firebase-admin/firestore';
 
-import { auth, db } from '../firebase';
-import { Auth } from 'firebase-admin/auth';
+import { auth, db, storage } from '../firebase';
 
 export interface AuthUser {
   uid: string;
@@ -13,6 +14,7 @@ export interface DataSourceContext {
   authUser: AuthUser | null;
   auth: Auth;
   db: Firestore;
+  storage: Storage;
 }
 
 export const buildContext = async (req: Request): Promise<DataSourceContext> => {
@@ -32,5 +34,5 @@ export const buildContext = async (req: Request): Promise<DataSourceContext> => 
     }
   }
 
-  return { authUser, db, auth };
+  return { authUser, db, auth, storage };
 };

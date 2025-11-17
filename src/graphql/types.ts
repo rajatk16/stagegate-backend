@@ -66,6 +66,7 @@ export type LocationInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  deleteProfilePicture: User;
   signUp: AuthPayload;
   updateProfilePicture: User;
   updateUser: User;
@@ -326,6 +327,7 @@ export type MutationResolvers<
   ContextType = DataSourceContext,
   ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation'],
 > = {
+  deleteProfilePicture?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   signUp?: Resolver<
     ResolversTypes['AuthPayload'],
     ParentType,

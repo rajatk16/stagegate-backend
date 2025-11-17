@@ -1,13 +1,10 @@
 import cors from 'cors';
-import dotenv from 'dotenv';
 import express from 'express';
 import bodyParser from 'body-parser';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@as-integrations/express5';
 
 import { typeDefs, buildContext, resolvers } from './graphql';
-
-dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 
