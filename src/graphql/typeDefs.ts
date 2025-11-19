@@ -103,6 +103,64 @@ export const typeDefs = gql`
     emailVerified: Boolean!
   }
 
+  # Organization Type. Represents an organization in the system.
+  type Organization {
+    # The unique identifier for the organization
+    id: ID!
+    # The name of the organization
+    name: String!
+    # The description of the organization
+    description: String
+    # The slug of the organization
+    slug: String!
+    # The logo of the organization
+    logo: String
+    # The website of the organization
+    website: String
+    # The owner of the organization
+    owner: User!
+    # Members of the organization
+    members: OrganizationMembers!
+    # The date and time the organization was created
+    createdAt: DateTime!
+    # The date and time the organization was last updated
+    updatedAt: DateTime!
+  }
+
+  # Represents pagination and result of list of organization members.
+  type OrganizationMembers {
+    # List of organization members
+    results: [OrganizationMember!]!
+  }
+
+  # Object that represents a single organization member.
+  type OrganizationMember {
+    # The user that is a member of the organization
+    user: User!
+    # The role of the user in the organization
+    role: OrganizationMemberRole!
+    # The Organization that the user is a member of
+    organization: Organization!
+  }
+
+  # Represents the role of a user in an organization.
+  enum OrganizationMemberRole {
+    # The user is a member of the organization
+    MEMBER
+    # The user is an admin of the organization
+    ADMIN
+    # The user is a owner of the organization
+    OWNER
+  }
+
+  # Contains information about the current page, when results are split into multiple pages.
+  type Pagination {
+    # The address of the next page, if one exists. If the current page is the last page, "cursor" is "null".
+    cursor: String
+    # The number of items in the current page.
+    pageSize: Int
+  }
+
   # Location Input Type. Represents a location input in the system.
   input LocationInput {
     # The city of the location

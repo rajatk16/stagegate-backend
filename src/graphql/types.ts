@@ -95,6 +95,44 @@ export type OccupationInput = {
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type Organization = {
+  __typename?: 'Organization';
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  logo?: Maybe<Scalars['String']['output']>;
+  members: OrganizationMembers;
+  name: Scalars['String']['output'];
+  owner: User;
+  slug: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  website?: Maybe<Scalars['String']['output']>;
+};
+
+export type OrganizationMember = {
+  __typename?: 'OrganizationMember';
+  organization: Organization;
+  role: OrganizationMemberRole;
+  user: User;
+};
+
+export enum OrganizationMemberRole {
+  Admin = 'ADMIN',
+  Member = 'MEMBER',
+  Owner = 'OWNER',
+}
+
+export type OrganizationMembers = {
+  __typename?: 'OrganizationMembers';
+  results: Array<OrganizationMember>;
+};
+
+export type Pagination = {
+  __typename?: 'Pagination';
+  cursor?: Maybe<Scalars['String']['output']>;
+  pageSize?: Maybe<Scalars['Int']['output']>;
+};
+
 export type Query = {
   __typename?: 'Query';
   authStatus?: Maybe<AuthStatus>;
@@ -246,11 +284,17 @@ export type ResolversTypes = {
   ContactInfoInput: ContactInfoInput;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
+  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Location: ResolverTypeWrapper<Location>;
   LocationInput: LocationInput;
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
   Occupation: ResolverTypeWrapper<Occupation>;
   OccupationInput: OccupationInput;
+  Organization: ResolverTypeWrapper<Organization>;
+  OrganizationMember: ResolverTypeWrapper<OrganizationMember>;
+  OrganizationMemberRole: OrganizationMemberRole;
+  OrganizationMembers: ResolverTypeWrapper<OrganizationMembers>;
+  Pagination: ResolverTypeWrapper<Pagination>;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   SignUpInput: SignUpInput;
   SocialMedia: ResolverTypeWrapper<SocialMedia>;
@@ -269,11 +313,16 @@ export type ResolversParentTypes = {
   ContactInfoInput: ContactInfoInput;
   DateTime: Scalars['DateTime']['output'];
   ID: Scalars['ID']['output'];
+  Int: Scalars['Int']['output'];
   Location: Location;
   LocationInput: LocationInput;
   Mutation: Record<PropertyKey, never>;
   Occupation: Occupation;
   OccupationInput: OccupationInput;
+  Organization: Organization;
+  OrganizationMember: OrganizationMember;
+  OrganizationMembers: OrganizationMembers;
+  Pagination: Pagination;
   Query: Record<PropertyKey, never>;
   SignUpInput: SignUpInput;
   SocialMedia: SocialMedia;
@@ -356,6 +405,49 @@ export type OccupationResolvers<
   title?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 };
 
+export type OrganizationResolvers<
+  ContextType = DataSourceContext,
+  ParentType extends
+    ResolversParentTypes['Organization'] = ResolversParentTypes['Organization'],
+> = {
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  logo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  members?: Resolver<ResolversTypes['OrganizationMembers'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  owner?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  website?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+};
+
+export type OrganizationMemberResolvers<
+  ContextType = DataSourceContext,
+  ParentType extends
+    ResolversParentTypes['OrganizationMember'] = ResolversParentTypes['OrganizationMember'],
+> = {
+  organization?: Resolver<ResolversTypes['Organization'], ParentType, ContextType>;
+  role?: Resolver<ResolversTypes['OrganizationMemberRole'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+};
+
+export type OrganizationMembersResolvers<
+  ContextType = DataSourceContext,
+  ParentType extends
+    ResolversParentTypes['OrganizationMembers'] = ResolversParentTypes['OrganizationMembers'],
+> = {
+  results?: Resolver<Array<ResolversTypes['OrganizationMember']>, ParentType, ContextType>;
+};
+
+export type PaginationResolvers<
+  ContextType = DataSourceContext,
+  ParentType extends ResolversParentTypes['Pagination'] = ResolversParentTypes['Pagination'],
+> = {
+  cursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  pageSize?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+};
+
 export type QueryResolvers<
   ContextType = DataSourceContext,
   ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query'],
@@ -397,6 +489,10 @@ export type Resolvers<ContextType = DataSourceContext> = {
   Location?: LocationResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Occupation?: OccupationResolvers<ContextType>;
+  Organization?: OrganizationResolvers<ContextType>;
+  OrganizationMember?: OrganizationMemberResolvers<ContextType>;
+  OrganizationMembers?: OrganizationMembersResolvers<ContextType>;
+  Pagination?: PaginationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   SocialMedia?: SocialMediaResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
