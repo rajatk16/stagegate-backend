@@ -11,6 +11,10 @@ const config: CodegenConfig = {
           DateTime: 'string',
         },
         contextType: './context#DataSourceContext',
+        mappers: {
+          Organization: './models#OrganizationModel',
+          OrganizationMember: './models#OrganizationMemberModel',
+        },
       },
     },
   },
