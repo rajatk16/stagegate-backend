@@ -31,6 +31,11 @@ export const typeDefs = gql`
 
     # Sign up a new user
     signUp(input: SignUpInput!): AuthPayload!
+
+    # Organization Mutations
+
+    # Create a new organization
+    createOrganization(input: CreateOrganizationInput!): Organization!
   }
 
   # User Type. Represents a user in the system.
@@ -109,10 +114,10 @@ export const typeDefs = gql`
     id: ID!
     # The name of the organization
     name: String!
-    # The description of the organization
-    description: String
     # The slug of the organization
     slug: String!
+    # The description of the organization
+    description: String
     # The logo of the organization
     logo: String
     # The website of the organization
@@ -120,7 +125,7 @@ export const typeDefs = gql`
     # The owner of the organization
     owner: User!
     # Members of the organization
-    members: OrganizationMembers!
+    members(first: Int = 20, after: String): OrganizationMembers!
     # The date and time the organization was created
     createdAt: DateTime!
     # The date and time the organization was last updated
@@ -129,6 +134,8 @@ export const typeDefs = gql`
 
   # Represents pagination and result of list of organization members.
   type OrganizationMembers {
+    # Pagination information
+    pagination: Pagination
     # List of organization members
     results: [OrganizationMember!]!
   }
@@ -218,6 +225,18 @@ export const typeDefs = gql`
     password: String!
     # The name of the user
     name: String!
+  }
+
+  # Create Organization Input Type. Represents a create organization input in the system.
+  input CreateOrganizationInput {
+    # The name of the organization
+    name: String!
+    # The description of the organization
+    description: String
+    # The logo of the organization
+    logo: String
+    # The website of the organization
+    website: String
   }
 
   # Auth Payload Type. Represents an auth payload in the system.

@@ -1,7 +1,7 @@
 import { GraphQLError } from 'graphql';
 
-import { MutationResolvers } from '../../../types';
 import { adaptUser } from '../../../../utils';
+import { MutationResolvers } from '../../../types';
 
 export const signUp: MutationResolvers['signUp'] = async (_parent, args, context) => {
   const existingUserSnap = await context.db

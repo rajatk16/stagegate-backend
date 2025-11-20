@@ -1,4 +1,5 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
+import { OrganizationModel, OrganizationMemberModel } from './models';
 import { DataSourceContext } from './context';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -13,6 +14,7 @@ export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> =
 export type Incremental<T> =
   | T
   | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type RequireFields<T, K extends keyof T> = Omit<T, K> & {
   [P in K]-?: NonNullable<T[P]>;
 };
@@ -53,6 +55,13 @@ export type ContactInfoInput = {
   website?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CreateOrganizationInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  logo?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  website?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Location = {
   __typename?: 'Location';
   city?: Maybe<Scalars['String']['output']>;
@@ -66,10 +75,15 @@ export type LocationInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  createOrganization: Organization;
   deleteProfilePicture: User;
   signUp: AuthPayload;
   updateProfilePicture: User;
   updateUser: User;
+};
+
+export type MutationCreateOrganizationArgs = {
+  input: CreateOrganizationInput;
 };
 
 export type MutationSignUpArgs = {
@@ -109,6 +123,11 @@ export type Organization = {
   website?: Maybe<Scalars['String']['output']>;
 };
 
+export type OrganizationMembersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type OrganizationMember = {
   __typename?: 'OrganizationMember';
   organization: Organization;
@@ -124,6 +143,7 @@ export enum OrganizationMemberRole {
 
 export type OrganizationMembers = {
   __typename?: 'OrganizationMembers';
+  pagination?: Maybe<Pagination>;
   results: Array<OrganizationMember>;
 };
 
@@ -282,6 +302,7 @@ export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   ContactInfo: ResolverTypeWrapper<ContactInfo>;
   ContactInfoInput: ContactInfoInput;
+  CreateOrganizationInput: CreateOrganizationInput;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
@@ -290,10 +311,14 @@ export type ResolversTypes = {
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
   Occupation: ResolverTypeWrapper<Occupation>;
   OccupationInput: OccupationInput;
-  Organization: ResolverTypeWrapper<Organization>;
-  OrganizationMember: ResolverTypeWrapper<OrganizationMember>;
+  Organization: ResolverTypeWrapper<OrganizationModel>;
+  OrganizationMember: ResolverTypeWrapper<OrganizationMemberModel>;
   OrganizationMemberRole: OrganizationMemberRole;
-  OrganizationMembers: ResolverTypeWrapper<OrganizationMembers>;
+  OrganizationMembers: ResolverTypeWrapper<
+    Omit<OrganizationMembers, 'results'> & {
+      results: Array<ResolversTypes['OrganizationMember']>;
+    }
+  >;
   Pagination: ResolverTypeWrapper<Pagination>;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   SignUpInput: SignUpInput;
@@ -311,6 +336,7 @@ export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
   ContactInfo: ContactInfo;
   ContactInfoInput: ContactInfoInput;
+  CreateOrganizationInput: CreateOrganizationInput;
   DateTime: Scalars['DateTime']['output'];
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
@@ -319,9 +345,11 @@ export type ResolversParentTypes = {
   Mutation: Record<PropertyKey, never>;
   Occupation: Occupation;
   OccupationInput: OccupationInput;
-  Organization: Organization;
-  OrganizationMember: OrganizationMember;
-  OrganizationMembers: OrganizationMembers;
+  Organization: OrganizationModel;
+  OrganizationMember: OrganizationMemberModel;
+  OrganizationMembers: Omit<OrganizationMembers, 'results'> & {
+    results: Array<ResolversParentTypes['OrganizationMember']>;
+  };
   Pagination: Pagination;
   Query: Record<PropertyKey, never>;
   SignUpInput: SignUpInput;
@@ -376,6 +404,12 @@ export type MutationResolvers<
   ContextType = DataSourceContext,
   ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation'],
 > = {
+  createOrganization?: Resolver<
+    ResolversTypes['Organization'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationCreateOrganizationArgs, 'input'>
+  >;
   deleteProfilePicture?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   signUp?: Resolver<
     ResolversTypes['AuthPayload'],
@@ -414,7 +448,12 @@ export type OrganizationResolvers<
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   logo?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  members?: Resolver<ResolversTypes['OrganizationMembers'], ParentType, ContextType>;
+  members?: Resolver<
+    ResolversTypes['OrganizationMembers'],
+    ParentType,
+    ContextType,
+    RequireFields<OrganizationMembersArgs, 'first'>
+  >;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   owner?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -437,6 +476,7 @@ export type OrganizationMembersResolvers<
   ParentType extends
     ResolversParentTypes['OrganizationMembers'] = ResolversParentTypes['OrganizationMembers'],
 > = {
+  pagination?: Resolver<Maybe<ResolversTypes['Pagination']>, ParentType, ContextType>;
   results?: Resolver<Array<ResolversTypes['OrganizationMember']>, ParentType, ContextType>;
 };
 
