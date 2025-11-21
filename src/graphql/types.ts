@@ -157,6 +157,7 @@ export type Query = {
   __typename?: 'Query';
   authStatus?: Maybe<AuthStatus>;
   me?: Maybe<User>;
+  myOrganizations: Array<Organization>;
 };
 
 export type SignUpInput = {
@@ -494,6 +495,7 @@ export type QueryResolvers<
 > = {
   authStatus?: Resolver<Maybe<ResolversTypes['AuthStatus']>, ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  myOrganizations?: Resolver<Array<ResolversTypes['Organization']>, ParentType, ContextType>;
 };
 
 export type SocialMediaResolvers<

@@ -13,6 +13,11 @@ export const typeDefs = gql`
 
     # Get the current user's authentication status
     authStatus: AuthStatus
+
+    # Organization Queries
+
+    # Get a list of organizations that the current user is a member of
+    myOrganizations: [Organization!]!
   }
 
   type Mutation {
