@@ -135,6 +135,8 @@ export const typeDefs = gql`
     createdAt: DateTime!
     # The date and time the organization was last updated
     updatedAt: DateTime!
+    # The role of the current user in the organization
+    viewerRole: OrganizationMemberRole
   }
 
   # Represents pagination and result of list of organization members.

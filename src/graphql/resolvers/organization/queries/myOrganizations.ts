@@ -43,7 +43,6 @@ export const myOrganizations: QueryResolvers['myOrganizations'] = async (
       .filter((d) => d.exists)
       .map((doc) => {
         const data = doc.data();
-        console.log(data);
         return {
           id: doc.id,
           name: data?.name ?? '',

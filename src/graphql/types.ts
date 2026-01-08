@@ -120,6 +120,7 @@ export type Organization = {
   owner: User;
   slug: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+  viewerRole?: Maybe<OrganizationMemberRole>;
   website?: Maybe<Scalars['String']['output']>;
 };
 
@@ -459,6 +460,11 @@ export type OrganizationResolvers<
   owner?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  viewerRole?: Resolver<
+    Maybe<ResolversTypes['OrganizationMemberRole']>,
+    ParentType,
+    ContextType
+  >;
   website?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 };
 
