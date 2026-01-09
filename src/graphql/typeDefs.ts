@@ -137,6 +137,8 @@ export const typeDefs = gql`
     updatedAt: DateTime!
     # The role of the current user in the organization
     viewerRole: OrganizationMemberRole
+    # Boolean for whether the organization is public
+    isPublic: Boolean!
   }
 
   # Represents pagination and result of list of organization members.
@@ -244,6 +246,8 @@ export const typeDefs = gql`
     logo: String
     # The website of the organization
     website: String
+    # Boolean for whether the organization is public
+    isPublic: Boolean
   }
 
   # Auth Payload Type. Represents an auth payload in the system.
