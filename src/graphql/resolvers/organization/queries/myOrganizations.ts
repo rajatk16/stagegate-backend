@@ -53,6 +53,7 @@ export const myOrganizations: QueryResolvers['myOrganizations'] = async (
           createdAt: data?.createdAt ?? null,
           ownerId: data?.ownerId ?? '',
           updatedAt: data?.updatedAt ?? null,
+          isPublic: data?.isPublic ?? false,
         };
       });
   } catch (error) {

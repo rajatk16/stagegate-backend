@@ -73,6 +73,7 @@ export const createOrganization: MutationResolvers['createOrganization'] = async
     ownerId: context.authUser.uid,
     createdAt: now,
     updatedAt: now,
+    isPublic: args.input.isPublic ?? false,
   };
 
   await orgRef.set(organizationData);

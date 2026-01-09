@@ -42,5 +42,6 @@ export const organization: OrganizationMemberResolvers['organization'] = async (
     createdAt: data.createdAt,
     updatedAt: data.updatedAt,
     description: data.description,
+    isPublic: data.isPublic,
   };
 };
