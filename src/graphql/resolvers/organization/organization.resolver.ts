@@ -1,11 +1,12 @@
 import { Resolvers } from '../../types';
-import { myOrganizations } from './queries';
 import { createOrganization } from './mutation';
 import { owner, members, viewerRole } from './fieldResolvers';
+import { myOrganizations, searchOrganizations } from './queries';
 
 export const resolvers: Resolvers = {
   Query: {
     myOrganizations,
+    searchOrganizations,
   },
   Mutation: {
     createOrganization,

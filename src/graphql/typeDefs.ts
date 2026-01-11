@@ -18,6 +18,13 @@ export const typeDefs = gql`
 
     # Get a list of organizations that the current user is a member of
     myOrganizations: [Organization!]!
+
+    # Search organizations by name
+    searchOrganizations(
+      query: String!
+      excludeMyOrganizations: Boolean = false
+      limit: Int = 10
+    ): [Organization!]!
   }
 
   type Mutation {

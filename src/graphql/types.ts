@@ -161,6 +161,13 @@ export type Query = {
   authStatus?: Maybe<AuthStatus>;
   me?: Maybe<User>;
   myOrganizations: Array<Organization>;
+  searchOrganizations: Array<Organization>;
+};
+
+export type QuerySearchOrganizationsArgs = {
+  excludeMyOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  query: Scalars['String']['input'];
 };
 
 export type SignUpInput = {
@@ -505,6 +512,12 @@ export type QueryResolvers<
   authStatus?: Resolver<Maybe<ResolversTypes['AuthStatus']>, ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   myOrganizations?: Resolver<Array<ResolversTypes['Organization']>, ParentType, ContextType>;
+  searchOrganizations?: Resolver<
+    Array<ResolversTypes['Organization']>,
+    ParentType,
+    ContextType,
+    RequireFields<QuerySearchOrganizationsArgs, 'excludeMyOrganizations' | 'limit' | 'query'>
+  >;
 };
 
 export type SocialMediaResolvers<
