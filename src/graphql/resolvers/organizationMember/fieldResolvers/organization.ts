@@ -1,4 +1,6 @@
 import { GraphQLError } from 'graphql';
+
+import { adaptOrganization } from '../../../../utils';
 import { OrganizationMemberResolvers } from '../../../types';
 
 export const organization: OrganizationMemberResolvers['organization'] = async (
@@ -32,16 +34,5 @@ export const organization: OrganizationMemberResolvers['organization'] = async (
     });
   }
 
-  return {
-    id: snap.id,
-    name: data.name,
-    slug: data.slug,
-    logo: data.logo,
-    website: data.website,
-    ownerId: data.ownerId,
-    createdAt: data.createdAt,
-    updatedAt: data.updatedAt,
-    description: data.description,
-    isPublic: data.isPublic,
-  };
+  return adaptOrganization(snap);
 };

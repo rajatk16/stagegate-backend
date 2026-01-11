@@ -1,6 +1,7 @@
 import { GraphQLError } from 'graphql';
 
 import { QueryResolvers } from '../../../types';
+import { adaptOrganization } from '../../../../utils';
 
 export const myOrganizations: QueryResolvers['myOrganizations'] = async (
   _parent,
@@ -39,23 +40,7 @@ export const myOrganizations: QueryResolvers['myOrganizations'] = async (
 
     const orgDocs = await Promise.all(organizationFetches);
 
-    return orgDocs
-      .filter((d) => d.exists)
-      .map((doc) => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          name: data?.name ?? '',
-          slug: data?.slug ?? '',
-          description: data?.description ?? null,
-          logo: data?.logo ?? null,
-          website: data?.website ?? null,
-          createdAt: data?.createdAt ?? null,
-          ownerId: data?.ownerId ?? '',
-          updatedAt: data?.updatedAt ?? null,
-          isPublic: data?.isPublic ?? false,
-        };
-      });
+    return orgDocs.filter((d) => d.exists).map((doc) => adaptOrganization(doc));
   } catch (error) {
     console.error(error);
     throw new GraphQLError('Internal server error', {
