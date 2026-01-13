@@ -63,6 +63,10 @@ export type CreateOrganizationInput = {
   website?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type JoinOrganizationInput = {
+  organizationId: Scalars['ID']['input'];
+};
+
 export type Location = {
   __typename?: 'Location';
   city?: Maybe<Scalars['String']['output']>;
@@ -78,6 +82,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   createOrganization: Organization;
   deleteProfilePicture: User;
+  joinOrganization: OrganizationMember;
   signUp: AuthPayload;
   updateProfilePicture: User;
   updateUser: User;
@@ -85,6 +90,10 @@ export type Mutation = {
 
 export type MutationCreateOrganizationArgs = {
   input: CreateOrganizationInput;
+};
+
+export type MutationJoinOrganizationArgs = {
+  input: JoinOrganizationInput;
 };
 
 export type MutationSignUpArgs = {
@@ -317,6 +326,7 @@ export type ResolversTypes = {
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  JoinOrganizationInput: JoinOrganizationInput;
   Location: ResolverTypeWrapper<Location>;
   LocationInput: LocationInput;
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
@@ -351,6 +361,7 @@ export type ResolversParentTypes = {
   DateTime: Scalars['DateTime']['output'];
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
+  JoinOrganizationInput: JoinOrganizationInput;
   Location: Location;
   LocationInput: LocationInput;
   Mutation: Record<PropertyKey, never>;
@@ -422,6 +433,12 @@ export type MutationResolvers<
     RequireFields<MutationCreateOrganizationArgs, 'input'>
   >;
   deleteProfilePicture?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  joinOrganization?: Resolver<
+    ResolversTypes['OrganizationMember'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationJoinOrganizationArgs, 'input'>
+  >;
   signUp?: Resolver<
     ResolversTypes['AuthPayload'],
     ParentType,

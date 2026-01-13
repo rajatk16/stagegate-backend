@@ -48,6 +48,9 @@ export const typeDefs = gql`
 
     # Create a new organization
     createOrganization(input: CreateOrganizationInput!): Organization!
+
+    # Join an organization
+    joinOrganization(input: JoinOrganizationInput!): OrganizationMember!
   }
 
   # User Type. Represents a user in the system.
@@ -255,6 +258,12 @@ export const typeDefs = gql`
     website: String
     # Boolean for whether the organization is public
     isPublic: Boolean
+  }
+
+  # Join Organization Input Type. Represents a join organization input in the system.
+  input JoinOrganizationInput {
+    # The organization ID
+    organizationId: ID!
   }
 
   # Auth Payload Type. Represents an auth payload in the system.
