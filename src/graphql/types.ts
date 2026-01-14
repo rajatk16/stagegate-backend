@@ -170,7 +170,12 @@ export type Query = {
   authStatus?: Maybe<AuthStatus>;
   me?: Maybe<User>;
   myOrganizations: Array<Organization>;
+  organizationBySlug: Organization;
   searchOrganizations: Array<Organization>;
+};
+
+export type QueryOrganizationBySlugArgs = {
+  slug: Scalars['String']['input'];
 };
 
 export type QuerySearchOrganizationsArgs = {
@@ -529,6 +534,12 @@ export type QueryResolvers<
   authStatus?: Resolver<Maybe<ResolversTypes['AuthStatus']>, ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   myOrganizations?: Resolver<Array<ResolversTypes['Organization']>, ParentType, ContextType>;
+  organizationBySlug?: Resolver<
+    ResolversTypes['Organization'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryOrganizationBySlugArgs, 'slug'>
+  >;
   searchOrganizations?: Resolver<
     Array<ResolversTypes['Organization']>,
     ParentType,

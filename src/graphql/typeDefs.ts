@@ -25,6 +25,9 @@ export const typeDefs = gql`
       excludeMyOrganizations: Boolean = false
       limit: Int = 10
     ): [Organization!]!
+
+    # Get a single organization by its slug
+    organizationBySlug(slug: String!): Organization!
   }
 
   type Mutation {
