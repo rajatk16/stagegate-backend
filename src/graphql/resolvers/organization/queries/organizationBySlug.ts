@@ -1,7 +1,7 @@
 import { GraphQLError } from 'graphql';
 
 import { QueryResolvers } from '../../../types';
-import { adaptOrganization } from 'src/utils';
+import { adaptOrganization } from '../../../../utils';
 
 export const organizationBySlug: QueryResolvers['organizationBySlug'] = async (
   _parent,
