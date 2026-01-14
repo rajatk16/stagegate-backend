@@ -59,6 +59,23 @@ export const createOrganization: MutationResolvers['createOrganization'] = async
 
   const slug = generateUniqueSlug(args.input.name.trim());
 
+  const slugCheckSnap = await context.db
+    .collection('organizations')
+    .where('slug', '==', slug)
+    .limit(1)
+    .get();
+
+  if (!slugCheckSnap.empty) {
+    throw new GraphQLError('An organization with this slug already exists.', {
+      extensions: {
+        code: 'BAD_USER_INPUT',
+        http: {
+          status: 400,
+        },
+      },
+    });
+  }
+
   const orgRef = context.db.collection('organizations').doc();
   const orgId = orgRef.id;
 
