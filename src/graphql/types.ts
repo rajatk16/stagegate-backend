@@ -42,6 +42,12 @@ export type AuthStatus = {
   uid: Scalars['ID']['output'];
 };
 
+export type ChangeOrgMemberRoleInput = {
+  organizationId: Scalars['ID']['input'];
+  role: OrganizationMemberRole;
+  userId: Scalars['ID']['input'];
+};
+
 export type ContactInfo = {
   __typename?: 'ContactInfo';
   phone?: Maybe<Scalars['String']['output']>;
@@ -80,12 +86,17 @@ export type LocationInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  changeOrgMemberRole: OrganizationMember;
   createOrganization: Organization;
   deleteProfilePicture: User;
   joinOrganization: OrganizationMember;
   signUp: AuthPayload;
   updateProfilePicture: User;
   updateUser: User;
+};
+
+export type MutationChangeOrgMemberRoleArgs = {
+  input: ChangeOrgMemberRoleInput;
 };
 
 export type MutationCreateOrganizationArgs = {
@@ -325,6 +336,7 @@ export type ResolversTypes = {
   AuthPayload: ResolverTypeWrapper<AuthPayload>;
   AuthStatus: ResolverTypeWrapper<AuthStatus>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  ChangeOrgMemberRoleInput: ChangeOrgMemberRoleInput;
   ContactInfo: ResolverTypeWrapper<ContactInfo>;
   ContactInfoInput: ContactInfoInput;
   CreateOrganizationInput: CreateOrganizationInput;
@@ -360,6 +372,7 @@ export type ResolversParentTypes = {
   AuthPayload: AuthPayload;
   AuthStatus: AuthStatus;
   Boolean: Scalars['Boolean']['output'];
+  ChangeOrgMemberRoleInput: ChangeOrgMemberRoleInput;
   ContactInfo: ContactInfo;
   ContactInfoInput: ContactInfoInput;
   CreateOrganizationInput: CreateOrganizationInput;
@@ -431,6 +444,12 @@ export type MutationResolvers<
   ContextType = DataSourceContext,
   ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation'],
 > = {
+  changeOrgMemberRole?: Resolver<
+    ResolversTypes['OrganizationMember'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationChangeOrgMemberRoleArgs, 'input'>
+  >;
   createOrganization?: Resolver<
     ResolversTypes['Organization'],
     ParentType,
