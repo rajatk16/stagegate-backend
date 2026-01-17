@@ -54,6 +54,9 @@ export const typeDefs = gql`
 
     # Join an organization
     joinOrganization(input: JoinOrganizationInput!): OrganizationMember!
+
+    # Change the role of a user in an organization
+    changeOrgMemberRole(input: ChangeOrgMemberRoleInput!): OrganizationMember!
   }
 
   # User Type. Represents a user in the system.
@@ -267,6 +270,16 @@ export const typeDefs = gql`
   input JoinOrganizationInput {
     # The organization ID
     organizationId: ID!
+  }
+
+  # Change the role of a user in an organization input type.
+  input ChangeOrgMemberRoleInput {
+    # The organization ID
+    organizationId: ID!
+    # The user ID
+    userId: ID!
+    # The new role of the user
+    role: OrganizationMemberRole!
   }
 
   # Auth Payload Type. Represents an auth payload in the system.
