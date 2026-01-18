@@ -57,6 +57,9 @@ export const typeDefs = gql`
 
     # Change the role of a user in an organization
     changeOrgMemberRole(input: ChangeOrgMemberRoleInput!): OrganizationMember!
+
+    # Remove a user from an organization
+    removeOrgMember(input: RemoveOrgMemberInput!): RemoveOrgMemberPayload!
   }
 
   # User Type. Represents a user in the system.
@@ -282,6 +285,14 @@ export const typeDefs = gql`
     role: OrganizationMemberRole!
   }
 
+  # Remove a user from an organization input type.
+  input RemoveOrgMemberInput {
+    # The organization ID
+    organizationId: ID!
+    # The user ID
+    userId: ID!
+  }
+
   # Auth Payload Type. Represents an auth payload in the system.
   type AuthPayload {
     # The unique identifier for the user
@@ -290,5 +301,11 @@ export const typeDefs = gql`
     email: String!
     # The user's profile
     user: User!
+  }
+
+  # Remove a user from an organization payload type.
+  type RemoveOrgMemberPayload {
+    # Whether the user was removed from the organization
+    success: Boolean!
   }
 `;
