@@ -90,6 +90,7 @@ export type Mutation = {
   createOrganization: Organization;
   deleteProfilePicture: User;
   joinOrganization: OrganizationMember;
+  removeOrgMember: RemoveOrgMemberPayload;
   signUp: AuthPayload;
   updateProfilePicture: User;
   updateUser: User;
@@ -105,6 +106,10 @@ export type MutationCreateOrganizationArgs = {
 
 export type MutationJoinOrganizationArgs = {
   input: JoinOrganizationInput;
+};
+
+export type MutationRemoveOrgMemberArgs = {
+  input: RemoveOrgMemberInput;
 };
 
 export type MutationSignUpArgs = {
@@ -193,6 +198,16 @@ export type QuerySearchOrganizationsArgs = {
   excludeMyOrganizations?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   query: Scalars['String']['input'];
+};
+
+export type RemoveOrgMemberInput = {
+  organizationId: Scalars['ID']['input'];
+  userId: Scalars['ID']['input'];
+};
+
+export type RemoveOrgMemberPayload = {
+  __typename?: 'RemoveOrgMemberPayload';
+  success: Scalars['Boolean']['output'];
 };
 
 export type SignUpInput = {
@@ -359,6 +374,8 @@ export type ResolversTypes = {
   >;
   Pagination: ResolverTypeWrapper<Pagination>;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
+  RemoveOrgMemberInput: RemoveOrgMemberInput;
+  RemoveOrgMemberPayload: ResolverTypeWrapper<RemoveOrgMemberPayload>;
   SignUpInput: SignUpInput;
   SocialMedia: ResolverTypeWrapper<SocialMedia>;
   SocialMediaInput: SocialMediaInput;
@@ -392,6 +409,8 @@ export type ResolversParentTypes = {
   };
   Pagination: Pagination;
   Query: Record<PropertyKey, never>;
+  RemoveOrgMemberInput: RemoveOrgMemberInput;
+  RemoveOrgMemberPayload: RemoveOrgMemberPayload;
   SignUpInput: SignUpInput;
   SocialMedia: SocialMedia;
   SocialMediaInput: SocialMediaInput;
@@ -462,6 +481,12 @@ export type MutationResolvers<
     ParentType,
     ContextType,
     RequireFields<MutationJoinOrganizationArgs, 'input'>
+  >;
+  removeOrgMember?: Resolver<
+    ResolversTypes['RemoveOrgMemberPayload'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationRemoveOrgMemberArgs, 'input'>
   >;
   signUp?: Resolver<
     ResolversTypes['AuthPayload'],
@@ -567,6 +592,14 @@ export type QueryResolvers<
   >;
 };
 
+export type RemoveOrgMemberPayloadResolvers<
+  ContextType = DataSourceContext,
+  ParentType extends
+    ResolversParentTypes['RemoveOrgMemberPayload'] = ResolversParentTypes['RemoveOrgMemberPayload'],
+> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+};
+
 export type SocialMediaResolvers<
   ContextType = DataSourceContext,
   ParentType extends ResolversParentTypes['SocialMedia'] = ResolversParentTypes['SocialMedia'],
@@ -605,6 +638,7 @@ export type Resolvers<ContextType = DataSourceContext> = {
   OrganizationMembers?: OrganizationMembersResolvers<ContextType>;
   Pagination?: PaginationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  RemoveOrgMemberPayload?: RemoveOrgMemberPayloadResolvers<ContextType>;
   SocialMedia?: SocialMediaResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
 };
