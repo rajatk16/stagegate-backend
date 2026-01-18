@@ -73,6 +73,15 @@ export type JoinOrganizationInput = {
   organizationId: Scalars['ID']['input'];
 };
 
+export type LeaveOrganizationInput = {
+  organizationId: Scalars['ID']['input'];
+};
+
+export type LeaveOrganizationPayload = {
+  __typename?: 'LeaveOrganizationPayload';
+  success: Scalars['Boolean']['output'];
+};
+
 export type Location = {
   __typename?: 'Location';
   city?: Maybe<Scalars['String']['output']>;
@@ -90,6 +99,7 @@ export type Mutation = {
   createOrganization: Organization;
   deleteProfilePicture: User;
   joinOrganization: OrganizationMember;
+  leaveOrganization: LeaveOrganizationPayload;
   removeOrgMember: RemoveOrgMemberPayload;
   signUp: AuthPayload;
   updateProfilePicture: User;
@@ -106,6 +116,10 @@ export type MutationCreateOrganizationArgs = {
 
 export type MutationJoinOrganizationArgs = {
   input: JoinOrganizationInput;
+};
+
+export type MutationLeaveOrganizationArgs = {
+  input: LeaveOrganizationInput;
 };
 
 export type MutationRemoveOrgMemberArgs = {
@@ -359,6 +373,8 @@ export type ResolversTypes = {
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   JoinOrganizationInput: JoinOrganizationInput;
+  LeaveOrganizationInput: LeaveOrganizationInput;
+  LeaveOrganizationPayload: ResolverTypeWrapper<LeaveOrganizationPayload>;
   Location: ResolverTypeWrapper<Location>;
   LocationInput: LocationInput;
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
@@ -397,6 +413,8 @@ export type ResolversParentTypes = {
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
   JoinOrganizationInput: JoinOrganizationInput;
+  LeaveOrganizationInput: LeaveOrganizationInput;
+  LeaveOrganizationPayload: LeaveOrganizationPayload;
   Location: Location;
   LocationInput: LocationInput;
   Mutation: Record<PropertyKey, never>;
@@ -451,6 +469,14 @@ export interface DateTimeScalarConfig
   name: 'DateTime';
 }
 
+export type LeaveOrganizationPayloadResolvers<
+  ContextType = DataSourceContext,
+  ParentType extends
+    ResolversParentTypes['LeaveOrganizationPayload'] = ResolversParentTypes['LeaveOrganizationPayload'],
+> = {
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+};
+
 export type LocationResolvers<
   ContextType = DataSourceContext,
   ParentType extends ResolversParentTypes['Location'] = ResolversParentTypes['Location'],
@@ -481,6 +507,12 @@ export type MutationResolvers<
     ParentType,
     ContextType,
     RequireFields<MutationJoinOrganizationArgs, 'input'>
+  >;
+  leaveOrganization?: Resolver<
+    ResolversTypes['LeaveOrganizationPayload'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationLeaveOrganizationArgs, 'input'>
   >;
   removeOrgMember?: Resolver<
     ResolversTypes['RemoveOrgMemberPayload'],
@@ -630,6 +662,7 @@ export type Resolvers<ContextType = DataSourceContext> = {
   AuthStatus?: AuthStatusResolvers<ContextType>;
   ContactInfo?: ContactInfoResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
+  LeaveOrganizationPayload?: LeaveOrganizationPayloadResolvers<ContextType>;
   Location?: LocationResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Occupation?: OccupationResolvers<ContextType>;

@@ -6,11 +6,27 @@ import { QueryResolvers } from '../../../types';
 export const me: QueryResolvers['me'] = async (_parent, _args, context) => {
   if (!context.authUser) return null;
 
-  const doc = await context.db.collection('users').doc(context.authUser.uid).get();
+  try {
+    const doc = await context.db.collection('users').doc(context.authUser.uid).get();
 
-  if (!doc.exists) throw new GraphQLError('User profile not found');
+    if (!doc.exists) throw new GraphQLError('User profile not found');
 
-  const data = doc.data();
+    const data = doc.data();
 
-  return adaptUser(data ?? {});
+    return adaptUser(data ?? {});
+  } catch (error) {
+    console.log(error);
+    if (error instanceof GraphQLError) {
+      throw error;
+    }
+
+    throw new GraphQLError('Internal server error', {
+      extensions: {
+        code: 'INTERNAL_SERVER_ERROR',
+        http: {
+          status: 500,
+        },
+      },
+    });
+  }
 };

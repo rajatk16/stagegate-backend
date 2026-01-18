@@ -41,14 +41,31 @@ export const updateProfilePicture: MutationResolvers['updateProfilePicture'] = a
     });
   }
 
-  const userDocRef = context.db.collection('users').doc(context.authUser.uid);
+  try {
+    const userDocRef = context.db.collection('users').doc(context.authUser.uid);
 
-  await userDocRef.set(
-    { profilePicture: url, updatedAt: new Date().toISOString() },
-    { merge: true },
-  );
+    await userDocRef.set(
+      { profilePicture: url, updatedAt: new Date().toISOString() },
+      { merge: true },
+    );
 
-  const updatedUser = (await userDocRef.get()).data();
+    const updatedUser = (await userDocRef.get()).data();
 
-  return adaptUser(updatedUser ?? {});
+    return adaptUser(updatedUser ?? {});
+  } catch (error) {
+    console.log(error);
+
+    if (error instanceof GraphQLError) {
+      throw error;
+    }
+
+    throw new GraphQLError('Internal server error', {
+      extensions: {
+        code: 'INTERNAL_SERVER_ERROR',
+        http: {
+          status: 500,
+        },
+      },
+    });
+  }
 };

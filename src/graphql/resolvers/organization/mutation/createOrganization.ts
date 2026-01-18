@@ -20,90 +20,106 @@ export const createOrganization: MutationResolvers['createOrganization'] = async
     });
   }
 
-  const existingOrganizationSnap = await context.db
-    .collection('organizations')
-    .where('ownerId', '==', context.authUser.uid)
-    .limit(1)
-    .get();
+  try {
+    const existingOrganizationSnap = await context.db
+      .collection('organizations')
+      .where('ownerId', '==', context.authUser.uid)
+      .limit(1)
+      .get();
 
-  if (!existingOrganizationSnap.empty) {
-    throw new GraphQLError(
-      'You already own an organization. Only one organization ownership per user is allowed.',
-      {
+    if (!existingOrganizationSnap.empty) {
+      throw new GraphQLError(
+        'You already own an organization. Only one organization ownership per user is allowed.',
+        {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            http: {
+              status: 400,
+            },
+          },
+        },
+      );
+    }
+
+    const nameCheckSnap = await context.db
+      .collection('organizations')
+      .where('name', '==', args.input.name.trim())
+      .limit(1)
+      .get();
+
+    if (!nameCheckSnap.empty) {
+      throw new GraphQLError('An organization with this name already exists.', {
         extensions: {
           code: 'BAD_USER_INPUT',
           http: {
             status: 400,
           },
         },
-      },
-    );
-  }
+      });
+    }
 
-  const nameCheckSnap = await context.db
-    .collection('organizations')
-    .where('name', '==', args.input.name.trim())
-    .limit(1)
-    .get();
+    const slug = generateUniqueSlug(args.input.name.trim());
 
-  if (!nameCheckSnap.empty) {
-    throw new GraphQLError('An organization with this name already exists.', {
+    const slugCheckSnap = await context.db
+      .collection('organizations')
+      .where('slug', '==', slug)
+      .limit(1)
+      .get();
+
+    if (!slugCheckSnap.empty) {
+      throw new GraphQLError('An organization with this slug already exists.', {
+        extensions: {
+          code: 'BAD_USER_INPUT',
+          http: {
+            status: 400,
+          },
+        },
+      });
+    }
+
+    const orgRef = context.db.collection('organizations').doc();
+    const orgId = orgRef.id;
+
+    const now = Timestamp.now();
+
+    const organizationData = {
+      name: args.input.name.trim(),
+      description: args.input.description ?? null,
+      website: args.input.website ?? null,
+      logo: args.input.logo ?? null,
+      slug,
+      ownerId: context.authUser.uid,
+      createdAt: now,
+      updatedAt: now,
+      isPublic: args.input.isPublic ?? false,
+    };
+
+    await orgRef.set(organizationData);
+
+    await orgRef.collection('members').doc(context.authUser.uid).set({
+      joinedAt: now,
+      orgId,
+      userId: context.authUser.uid,
+      role: OrganizationMemberRole.Owner.toString(),
+    });
+
+    return {
+      id: orgId,
+      ...organizationData,
+    };
+  } catch (error) {
+    console.log(error);
+    if (error instanceof GraphQLError) {
+      throw error;
+    }
+
+    throw new GraphQLError('Internal server error', {
       extensions: {
-        code: 'BAD_USER_INPUT',
+        code: 'INTERNAL_SERVER_ERROR',
         http: {
-          status: 400,
+          status: 500,
         },
       },
     });
   }
-
-  const slug = generateUniqueSlug(args.input.name.trim());
-
-  const slugCheckSnap = await context.db
-    .collection('organizations')
-    .where('slug', '==', slug)
-    .limit(1)
-    .get();
-
-  if (!slugCheckSnap.empty) {
-    throw new GraphQLError('An organization with this slug already exists.', {
-      extensions: {
-        code: 'BAD_USER_INPUT',
-        http: {
-          status: 400,
-        },
-      },
-    });
-  }
-
-  const orgRef = context.db.collection('organizations').doc();
-  const orgId = orgRef.id;
-
-  const now = Timestamp.now();
-
-  const organizationData = {
-    name: args.input.name.trim(),
-    description: args.input.description ?? null,
-    website: args.input.website ?? null,
-    logo: args.input.logo ?? null,
-    slug,
-    ownerId: context.authUser.uid,
-    createdAt: now,
-    updatedAt: now,
-    isPublic: args.input.isPublic ?? false,
-  };
-
-  await orgRef.set(organizationData);
-
-  await orgRef.collection('members').doc(context.authUser.uid).set({
-    joinedAt: now,
-    orgId,
-    userId: context.authUser.uid,
-    role: OrganizationMemberRole.Owner.toString(),
-  });
-
-  return {
-    id: orgId,
-    ...organizationData,
-  };
 };
