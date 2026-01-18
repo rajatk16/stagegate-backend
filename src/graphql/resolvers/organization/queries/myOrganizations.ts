@@ -8,18 +8,18 @@ export const myOrganizations: QueryResolvers['myOrganizations'] = async (
   _args,
   context,
 ) => {
-  try {
-    if (!context.authUser) {
-      throw new GraphQLError('Unauthorized', {
-        extensions: {
-          code: 'UNAUTHORIZED',
-          http: {
-            status: 401,
-          },
+  if (!context.authUser) {
+    throw new GraphQLError('Unauthorized', {
+      extensions: {
+        code: 'UNAUTHORIZED',
+        http: {
+          status: 401,
         },
-      });
-    }
+      },
+    });
+  }
 
+  try {
     const userId = context.authUser.uid;
 
     const membershipSnapshot = await context.db
@@ -43,6 +43,11 @@ export const myOrganizations: QueryResolvers['myOrganizations'] = async (
     return orgDocs.filter((d) => d.exists).map((doc) => adaptOrganization(doc));
   } catch (error) {
     console.error(error);
+
+    if (error instanceof GraphQLError) {
+      throw error;
+    }
+
     throw new GraphQLError('Internal server error', {
       extensions: {
         code: 'INTERNAL_SERVER_ERROR',

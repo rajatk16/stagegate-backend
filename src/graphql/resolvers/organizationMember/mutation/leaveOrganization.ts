@@ -1,15 +1,12 @@
 import { GraphQLError } from 'graphql';
-import { Timestamp } from 'firebase-admin/firestore';
-
 import { MutationResolvers, OrganizationMemberRole } from '../../../types';
 
-export const joinOrganization: MutationResolvers['joinOrganization'] = async (
+export const leaveOrganization: MutationResolvers['leaveOrganization'] = async (
   _parent,
-  args,
-  context,
+  { input },
+  { authUser, db },
 ) => {
-  const { organizationId } = args.input;
-  const { authUser, db } = context;
+  const { organizationId } = input;
 
   if (!authUser) {
     throw new GraphQLError('Unauthorized', {
@@ -23,8 +20,6 @@ export const joinOrganization: MutationResolvers['joinOrganization'] = async (
   }
 
   try {
-    const { uid } = authUser;
-
     const orgRef = db.collection('organizations').doc(organizationId);
     const orgSnap = await orgRef.get();
 
@@ -39,10 +34,14 @@ export const joinOrganization: MutationResolvers['joinOrganization'] = async (
       });
     }
 
-    const orgData = orgSnap.data();
+    const memberSnap = await orgRef
+      .collection('members')
+      .where('userId', '==', authUser.uid)
+      .limit(1)
+      .get();
 
-    if (!orgData?.isPublic) {
-      throw new GraphQLError('Organization is not public', {
+    if (memberSnap.empty) {
+      throw new GraphQLError('You are not a member of this organization', {
         extensions: {
           code: 'FORBIDDEN',
           http: {
@@ -52,11 +51,24 @@ export const joinOrganization: MutationResolvers['joinOrganization'] = async (
       });
     }
 
-    const memberRef = orgRef.collection('members').doc(uid);
-    const memberSnap = await memberRef.get();
+    const memberDoc = memberSnap.docs[0];
+    const memberData = memberDoc.data();
 
-    if (memberSnap.exists) {
-      throw new GraphQLError('You are already a member of this organization', {
+    if (memberData?.role === OrganizationMemberRole.Owner) {
+      throw new GraphQLError('Organization owner cannot leave the organization', {
+        extensions: {
+          code: 'FORBIDDEN',
+          http: {
+            status: 403,
+          },
+        },
+      });
+    }
+
+    const membersCountSnap = await orgRef.collection('members').count().get();
+
+    if (membersCountSnap.data().count === 1) {
+      throw new GraphQLError('Organization must have atleast one member', {
         extensions: {
           code: 'BAD_USER_INPUT',
           http: {
@@ -65,23 +77,14 @@ export const joinOrganization: MutationResolvers['joinOrganization'] = async (
         },
       });
     }
-    const now = Timestamp.now();
 
-    await memberRef.set({
-      joinedAt: now,
-      orgId: organizationId,
-      userId: uid,
-      role: OrganizationMemberRole.Member.toString(),
-    });
+    await memberDoc.ref.delete();
 
     return {
-      role: OrganizationMemberRole.Member.toString(),
-      userId: uid,
-      orgId: organizationId,
-      joinedAt: now,
+      success: true,
     };
   } catch (error) {
-    console.error(error);
+    console.log(error);
 
     if (error instanceof GraphQLError) {
       throw error;

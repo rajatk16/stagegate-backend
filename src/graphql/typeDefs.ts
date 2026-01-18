@@ -60,6 +60,9 @@ export const typeDefs = gql`
 
     # Remove a user from an organization
     removeOrgMember(input: RemoveOrgMemberInput!): RemoveOrgMemberPayload!
+
+    # Leave an organization
+    leaveOrganization(input: LeaveOrganizationInput!): LeaveOrganizationPayload!
   }
 
   # User Type. Represents a user in the system.
@@ -293,6 +296,12 @@ export const typeDefs = gql`
     userId: ID!
   }
 
+  # Leave an organization input type.
+  input LeaveOrganizationInput {
+    # The organization ID
+    organizationId: ID!
+  }
+
   # Auth Payload Type. Represents an auth payload in the system.
   type AuthPayload {
     # The unique identifier for the user
@@ -306,6 +315,12 @@ export const typeDefs = gql`
   # Remove a user from an organization payload type.
   type RemoveOrgMemberPayload {
     # Whether the user was removed from the organization
+    success: Boolean!
+  }
+
+  # Leave an organization payload type.
+  type LeaveOrganizationPayload {
+    # Whether the user left the organization
     success: Boolean!
   }
 `;
