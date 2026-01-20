@@ -63,6 +63,9 @@ export const typeDefs = gql`
 
     # Leave an organization
     leaveOrganization(input: LeaveOrganizationInput!): LeaveOrganizationPayload!
+
+    # Update an organization
+    updateOrganization(input: UpdateOrganizationInput!): Organization!
   }
 
   # User Type. Represents a user in the system.
@@ -300,6 +303,20 @@ export const typeDefs = gql`
   input LeaveOrganizationInput {
     # The organization ID
     organizationId: ID!
+  }
+
+  # Update an organization input type.
+  input UpdateOrganizationInput {
+    # The organization ID
+    organizationId: ID!
+    # The description of the organization
+    description: String
+    # The logo of the organization
+    logo: String
+    # The website of the organization
+    website: String
+    # Boolean for whether the organization is public
+    isPublic: Boolean
   }
 
   # Auth Payload Type. Represents an auth payload in the system.

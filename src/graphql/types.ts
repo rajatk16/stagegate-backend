@@ -1,6 +1,6 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import { OrganizationModel, OrganizationMemberModel } from './models';
 import { DataSourceContext } from './context';
+import { OrganizationMemberModel, OrganizationModel } from './models';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -102,6 +102,7 @@ export type Mutation = {
   leaveOrganization: LeaveOrganizationPayload;
   removeOrgMember: RemoveOrgMemberPayload;
   signUp: AuthPayload;
+  updateOrganization: Organization;
   updateProfilePicture: User;
   updateUser: User;
 };
@@ -128,6 +129,10 @@ export type MutationRemoveOrgMemberArgs = {
 
 export type MutationSignUpArgs = {
   input: SignUpInput;
+};
+
+export type MutationUpdateOrganizationArgs = {
+  input: UpdateOrganizationInput;
 };
 
 export type MutationUpdateProfilePictureArgs = {
@@ -239,6 +244,14 @@ export type SocialMedia = {
 export type SocialMediaInput = {
   handle: Scalars['String']['input'];
   platform: Scalars['String']['input'];
+};
+
+export type UpdateOrganizationInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
+  logo?: InputMaybe<Scalars['String']['input']>;
+  organizationId: Scalars['ID']['input'];
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateUserInput = {
@@ -396,6 +409,7 @@ export type ResolversTypes = {
   SocialMedia: ResolverTypeWrapper<SocialMedia>;
   SocialMediaInput: SocialMediaInput;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  UpdateOrganizationInput: UpdateOrganizationInput;
   UpdateUserInput: UpdateUserInput;
   User: ResolverTypeWrapper<User>;
 };
@@ -433,6 +447,7 @@ export type ResolversParentTypes = {
   SocialMedia: SocialMedia;
   SocialMediaInput: SocialMediaInput;
   String: Scalars['String']['output'];
+  UpdateOrganizationInput: UpdateOrganizationInput;
   UpdateUserInput: UpdateUserInput;
   User: User;
 };
@@ -525,6 +540,12 @@ export type MutationResolvers<
     ParentType,
     ContextType,
     RequireFields<MutationSignUpArgs, 'input'>
+  >;
+  updateOrganization?: Resolver<
+    ResolversTypes['Organization'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationUpdateOrganizationArgs, 'input'>
   >;
   updateProfilePicture?: Resolver<
     ResolversTypes['User'],
