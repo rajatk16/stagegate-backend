@@ -1,7 +1,7 @@
 import { Timestamp } from 'firebase-admin/firestore';
 import { GraphQLError } from 'graphql';
 
-import { adaptOrganization } from 'src/utils';
+import { adaptOrganization } from '../../../../utils';
 import { MutationResolvers, OrganizationMemberRole } from '../../../types';
 
 export const updateOrganization: MutationResolvers['updateOrganization'] = async (
