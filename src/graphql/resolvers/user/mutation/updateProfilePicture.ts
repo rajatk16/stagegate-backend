@@ -49,9 +49,9 @@ export const updateProfilePicture: MutationResolvers['updateProfilePicture'] = a
       { merge: true },
     );
 
-    const updatedUser = (await userDocRef.get()).data();
+    const updatedUser = await userDocRef.get();
 
-    return adaptUser(updatedUser ?? {});
+    return adaptUser(updatedUser);
   } catch (error) {
     console.log(error);
 

@@ -28,7 +28,7 @@ export const updateUser: MutationResolvers['updateUser'] = async (_parent, args,
 
     const updatedDoc = await userRef.get();
 
-    return adaptUser(updatedDoc.data() ?? {});
+    return adaptUser(updatedDoc);
   } catch (error) {
     console.log(error);
 

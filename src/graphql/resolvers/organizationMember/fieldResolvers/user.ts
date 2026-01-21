@@ -17,5 +17,5 @@ export const user: OrganizationMemberResolvers['user'] = async (parent, _args, c
     });
   }
 
-  return adaptUser(snap.data());
+  return adaptUser(snap);
 };

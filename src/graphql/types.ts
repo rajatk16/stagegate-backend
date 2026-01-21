@@ -1,6 +1,11 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
+import {
+  OrganizationModel,
+  OrganizationMemberModel,
+  EventModel,
+  EventMemberModel,
+} from './models';
 import { DataSourceContext } from './context';
-import { OrganizationMemberModel, OrganizationModel } from './models';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -61,6 +66,26 @@ export type ContactInfoInput = {
   website?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CreateEventInput = {
+  coverImage?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  endDate?: InputMaybe<Scalars['DateTime']['input']>;
+  eventType: EventType;
+  format: EventFormat;
+  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
+  location?: InputMaybe<EventLocationInput>;
+  name: Scalars['String']['input'];
+  organizationId: Scalars['ID']['input'];
+  startDate?: InputMaybe<Scalars['DateTime']['input']>;
+  tagline?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CreateEventPayload = {
+  __typename?: 'CreateEventPayload';
+  event: Event;
+};
+
 export type CreateOrganizationInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   isPublic?: InputMaybe<Scalars['Boolean']['input']>;
@@ -68,6 +93,90 @@ export type CreateOrganizationInput = {
   name: Scalars['String']['input'];
   website?: InputMaybe<Scalars['String']['input']>;
 };
+
+export type Event = {
+  __typename?: 'Event';
+  coverImage?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  endDate?: Maybe<Scalars['DateTime']['output']>;
+  eventType: EventType;
+  format: EventFormat;
+  id: Scalars['ID']['output'];
+  isPublic: Scalars['Boolean']['output'];
+  location?: Maybe<EventLocation>;
+  members: EventMembers;
+  name: Scalars['String']['output'];
+  organization: Organization;
+  slug: Scalars['String']['output'];
+  startDate?: Maybe<Scalars['DateTime']['output']>;
+  status: EventStatus;
+  tagline?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+  viewerEventRole?: Maybe<EventMemberRole>;
+  viewerOrgRole?: Maybe<OrganizationMemberRole>;
+  website?: Maybe<Scalars['String']['output']>;
+};
+
+export type EventMembersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export enum EventFormat {
+  Hybrid = 'HYBRID',
+  InPerson = 'IN_PERSON',
+  Online = 'ONLINE',
+}
+
+export type EventLocation = {
+  __typename?: 'EventLocation';
+  address?: Maybe<Scalars['String']['output']>;
+  city?: Maybe<Scalars['String']['output']>;
+  country?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+};
+
+export type EventLocationInput = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  city?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type EventMember = {
+  __typename?: 'EventMember';
+  event: Event;
+  role: EventMemberRole;
+  user: User;
+};
+
+export enum EventMemberRole {
+  Guest = 'GUEST',
+  Organizer = 'ORGANIZER',
+  Reviewer = 'REVIEWER',
+}
+
+export type EventMembers = {
+  __typename?: 'EventMembers';
+  pagination?: Maybe<Pagination>;
+  results: Array<EventMember>;
+};
+
+export enum EventStatus {
+  Archived = 'ARCHIVED',
+  Draft = 'DRAFT',
+  Published = 'PUBLISHED',
+}
+
+export enum EventType {
+  Conference = 'CONFERENCE',
+  Hackathon = 'HACKATHON',
+  Meetup = 'MEETUP',
+  Other = 'OTHER',
+  Webinar = 'WEBINAR',
+  Workshop = 'WORKSHOP',
+}
 
 export type JoinOrganizationInput = {
   organizationId: Scalars['ID']['input'];
@@ -96,6 +205,7 @@ export type LocationInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   changeOrgMemberRole: OrganizationMember;
+  createEvent: CreateEventPayload;
   createOrganization: Organization;
   deleteProfilePicture: User;
   joinOrganization: OrganizationMember;
@@ -109,6 +219,10 @@ export type Mutation = {
 
 export type MutationChangeOrgMemberRoleArgs = {
   input: ChangeOrgMemberRoleInput;
+};
+
+export type MutationCreateEventArgs = {
+  input: CreateEventInput;
 };
 
 export type MutationCreateOrganizationArgs = {
@@ -381,8 +495,23 @@ export type ResolversTypes = {
   ChangeOrgMemberRoleInput: ChangeOrgMemberRoleInput;
   ContactInfo: ResolverTypeWrapper<ContactInfo>;
   ContactInfoInput: ContactInfoInput;
+  CreateEventInput: CreateEventInput;
+  CreateEventPayload: ResolverTypeWrapper<
+    Omit<CreateEventPayload, 'event'> & { event: ResolversTypes['Event'] }
+  >;
   CreateOrganizationInput: CreateOrganizationInput;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
+  Event: ResolverTypeWrapper<EventModel>;
+  EventFormat: EventFormat;
+  EventLocation: ResolverTypeWrapper<EventLocation>;
+  EventLocationInput: EventLocationInput;
+  EventMember: ResolverTypeWrapper<EventMemberModel>;
+  EventMemberRole: EventMemberRole;
+  EventMembers: ResolverTypeWrapper<
+    Omit<EventMembers, 'results'> & { results: Array<ResolversTypes['EventMember']> }
+  >;
+  EventStatus: EventStatus;
+  EventType: EventType;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   JoinOrganizationInput: JoinOrganizationInput;
@@ -422,8 +551,19 @@ export type ResolversParentTypes = {
   ChangeOrgMemberRoleInput: ChangeOrgMemberRoleInput;
   ContactInfo: ContactInfo;
   ContactInfoInput: ContactInfoInput;
+  CreateEventInput: CreateEventInput;
+  CreateEventPayload: Omit<CreateEventPayload, 'event'> & {
+    event: ResolversParentTypes['Event'];
+  };
   CreateOrganizationInput: CreateOrganizationInput;
   DateTime: Scalars['DateTime']['output'];
+  Event: EventModel;
+  EventLocation: EventLocation;
+  EventLocationInput: EventLocationInput;
+  EventMember: EventMemberModel;
+  EventMembers: Omit<EventMembers, 'results'> & {
+    results: Array<ResolversParentTypes['EventMember']>;
+  };
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
   JoinOrganizationInput: JoinOrganizationInput;
@@ -479,10 +619,82 @@ export type ContactInfoResolvers<
   website?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 };
 
+export type CreateEventPayloadResolvers<
+  ContextType = DataSourceContext,
+  ParentType extends
+    ResolversParentTypes['CreateEventPayload'] = ResolversParentTypes['CreateEventPayload'],
+> = {
+  event?: Resolver<ResolversTypes['Event'], ParentType, ContextType>;
+};
+
 export interface DateTimeScalarConfig
   extends GraphQLScalarTypeConfig<ResolversTypes['DateTime'], any> {
   name: 'DateTime';
 }
+
+export type EventResolvers<
+  ContextType = DataSourceContext,
+  ParentType extends ResolversParentTypes['Event'] = ResolversParentTypes['Event'],
+> = {
+  coverImage?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  endDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  eventType?: Resolver<ResolversTypes['EventType'], ParentType, ContextType>;
+  format?: Resolver<ResolversTypes['EventFormat'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isPublic?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  location?: Resolver<Maybe<ResolversTypes['EventLocation']>, ParentType, ContextType>;
+  members?: Resolver<
+    ResolversTypes['EventMembers'],
+    ParentType,
+    ContextType,
+    RequireFields<EventMembersArgs, 'first'>
+  >;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  organization?: Resolver<ResolversTypes['Organization'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  startDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['EventStatus'], ParentType, ContextType>;
+  tagline?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  viewerEventRole?: Resolver<Maybe<ResolversTypes['EventMemberRole']>, ParentType, ContextType>;
+  viewerOrgRole?: Resolver<
+    Maybe<ResolversTypes['OrganizationMemberRole']>,
+    ParentType,
+    ContextType
+  >;
+  website?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+};
+
+export type EventLocationResolvers<
+  ContextType = DataSourceContext,
+  ParentType extends
+    ResolversParentTypes['EventLocation'] = ResolversParentTypes['EventLocation'],
+> = {
+  address?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  country?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+};
+
+export type EventMemberResolvers<
+  ContextType = DataSourceContext,
+  ParentType extends ResolversParentTypes['EventMember'] = ResolversParentTypes['EventMember'],
+> = {
+  event?: Resolver<ResolversTypes['Event'], ParentType, ContextType>;
+  role?: Resolver<ResolversTypes['EventMemberRole'], ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+};
+
+export type EventMembersResolvers<
+  ContextType = DataSourceContext,
+  ParentType extends
+    ResolversParentTypes['EventMembers'] = ResolversParentTypes['EventMembers'],
+> = {
+  pagination?: Resolver<Maybe<ResolversTypes['Pagination']>, ParentType, ContextType>;
+  results?: Resolver<Array<ResolversTypes['EventMember']>, ParentType, ContextType>;
+};
 
 export type LeaveOrganizationPayloadResolvers<
   ContextType = DataSourceContext,
@@ -509,6 +721,12 @@ export type MutationResolvers<
     ParentType,
     ContextType,
     RequireFields<MutationChangeOrgMemberRoleArgs, 'input'>
+  >;
+  createEvent?: Resolver<
+    ResolversTypes['CreateEventPayload'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationCreateEventArgs, 'input'>
   >;
   createOrganization?: Resolver<
     ResolversTypes['Organization'],
@@ -682,7 +900,12 @@ export type Resolvers<ContextType = DataSourceContext> = {
   AuthPayload?: AuthPayloadResolvers<ContextType>;
   AuthStatus?: AuthStatusResolvers<ContextType>;
   ContactInfo?: ContactInfoResolvers<ContextType>;
+  CreateEventPayload?: CreateEventPayloadResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
+  Event?: EventResolvers<ContextType>;
+  EventLocation?: EventLocationResolvers<ContextType>;
+  EventMember?: EventMemberResolvers<ContextType>;
+  EventMembers?: EventMembersResolvers<ContextType>;
   LeaveOrganizationPayload?: LeaveOrganizationPayloadResolvers<ContextType>;
   Location?: LocationResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;

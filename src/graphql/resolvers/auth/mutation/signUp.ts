@@ -72,7 +72,7 @@ export const signUp: MutationResolvers['signUp'] = async (_parent, args, context
     return {
       uid: newAuthUser.uid,
       email: newAuthUser.email!,
-      user: adaptUser(updatedDoc.data()),
+      user: adaptUser(updatedDoc),
     };
   }
 
@@ -94,10 +94,12 @@ export const signUp: MutationResolvers['signUp'] = async (_parent, args, context
 
     await context.db.collection('users').doc(newAuthUser.uid).set(userData);
 
+    const userDoc = await context.db.collection('users').doc(newAuthUser.uid).get();
+
     return {
       uid: newAuthUser.uid,
       email: newAuthUser.email!,
-      user: adaptUser(userData),
+      user: adaptUser(userDoc),
     };
   }
 

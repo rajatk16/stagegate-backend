@@ -66,6 +66,11 @@ export const typeDefs = gql`
 
     # Update an organization
     updateOrganization(input: UpdateOrganizationInput!): Organization!
+
+    # Event Mutations
+
+    # Create a new event
+    createEvent(input: CreateEventInput!): CreateEventPayload!
   }
 
   # User Type. Represents a user in the system.
@@ -194,6 +199,126 @@ export const typeDefs = gql`
     OWNER
   }
 
+  # Event Type. Represents an event in the system.
+  type Event {
+    # The unique identifier for the event
+    id: ID!
+    # The name of the event
+    name: String!
+    # The slug of the event
+    slug: String!
+    # Event Type
+    eventType: EventType!
+    # The description of the event
+    description: String
+    # The tagline of the event
+    tagline: String
+    # The start date of the event
+    startDate: DateTime
+    # The end date of the event
+    endDate: DateTime
+    # The location of the event
+    location: EventLocation
+    # The website of the event (default is the organization website)
+    website: String
+    # The cover image of the event
+    coverImage: String
+    # The parent organization of the event
+    organization: Organization!
+    # The format of the event
+    format: EventFormat!
+    # The members of the event
+    members(first: Int = 20, after: String): EventMembers!
+    # The status of the event
+    status: EventStatus!
+    # Is the event public
+    isPublic: Boolean!
+    # The role of the current user in the parent organization
+    viewerOrgRole: OrganizationMemberRole
+    # The role of the current user in the event
+    viewerEventRole: EventMemberRole
+    # The date and time the event was created
+    createdAt: DateTime!
+    # The date and time the event was last updated
+    updatedAt: DateTime!
+  }
+
+  # The type of an event.
+  enum EventType {
+    # The event is a conference
+    CONFERENCE
+    # The event is a meetup
+    MEETUP
+    # The event is a workshop
+    WORKSHOP
+    # The event is a hackathon
+    HACKATHON
+    # The event is a webinar
+    WEBINAR
+    # The event is of other type
+    OTHER
+  }
+
+  # The format of the event.
+  enum EventFormat {
+    # The event is in-person
+    IN_PERSON
+    # The event is online
+    ONLINE
+    # The event is hybrid
+    HYBRID
+  }
+
+  # The location of the event.
+  type EventLocation {
+    # The name of the location
+    name: String
+    # The address of the location
+    address: String
+    # The city of the location
+    city: String
+    # The country of the location
+    country: String
+  }
+
+  # Represents the pagination and results of list of event members.
+  type EventMembers {
+    # Pagination Information
+    pagination: Pagination
+    # List of event members
+    results: [EventMember!]!
+  }
+
+  # Object that represents a single event member.
+  type EventMember {
+    # The user that is a member of the event
+    user: User!
+    # The role of the user in the event
+    role: EventMemberRole!
+    # The Event that the user is a member of
+    event: Event!
+  }
+
+  # Represents the status of an event.
+  enum EventStatus {
+    # The event is draft
+    DRAFT
+    # The event is published
+    PUBLISHED
+    # The event is archived
+    ARCHIVED
+  }
+
+  # Represents the role of a user in an event.
+  enum EventMemberRole {
+    # The user is an organizer of the event
+    ORGANIZER
+    # The user is a reviewer of the event
+    REVIEWER
+    # The user is a guest of the event
+    GUEST
+  }
+
   # Contains information about the current page, when results are split into multiple pages.
   type Pagination {
     # The address of the next page, if one exists. If the current page is the last page, "cursor" is "null".
@@ -319,6 +444,46 @@ export const typeDefs = gql`
     isPublic: Boolean
   }
 
+  # Create Event Input Type. Represents a create event input in the system.
+  input CreateEventInput {
+    # The ID of the organization
+    organizationId: ID!
+    # The name of the event
+    name: String!
+    # The type of the event.
+    eventType: EventType!
+    # The description of the event
+    description: String
+    # The tagline of the event
+    tagline: String
+    # The start date of the event
+    startDate: DateTime
+    # The end date of the event
+    endDate: DateTime
+    # The location of the event
+    location: EventLocationInput
+    # The website of the event
+    website: String
+    # The cover image of the event
+    coverImage: String
+    # The format of the event
+    format: EventFormat!
+    # Whether the event is public (false by default)
+    isPublic: Boolean
+  }
+
+  # Event Location Input Type. Represents an event location input in the system.
+  input EventLocationInput {
+    # The name of the location
+    name: String
+    # The address of the location
+    address: String
+    # The city of the location
+    city: String
+    # The country of the location
+    country: String
+  }
+
   # Auth Payload Type. Represents an auth payload in the system.
   type AuthPayload {
     # The unique identifier for the user
@@ -339,5 +504,10 @@ export const typeDefs = gql`
   type LeaveOrganizationPayload {
     # Whether the user left the organization
     success: Boolean!
+  }
+
+  # The payload type for creating an event.
+  type CreateEventPayload {
+    event: Event!
   }
 `;

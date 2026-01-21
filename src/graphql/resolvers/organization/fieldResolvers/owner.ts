@@ -17,5 +17,5 @@ export const owner: OrganizationResolvers['owner'] = async (parent, _args, conte
     });
   }
 
-  return adaptUser(snap.data());
+  return adaptUser(snap);
 };

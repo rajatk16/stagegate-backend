@@ -11,9 +11,7 @@ export const me: QueryResolvers['me'] = async (_parent, _args, context) => {
 
     if (!doc.exists) throw new GraphQLError('User profile not found');
 
-    const data = doc.data();
-
-    return adaptUser(data ?? {});
+    return adaptUser(doc);
   } catch (error) {
     console.log(error);
     if (error instanceof GraphQLError) {
