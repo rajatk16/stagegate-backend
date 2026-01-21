@@ -1,6 +1,7 @@
 import { GraphQLError } from 'graphql';
 import { Timestamp } from 'firebase-admin/firestore';
 
+import { OrganizationModel } from '../../../models';
 import { generateUniqueSlug } from '../../../../utils';
 import { MutationResolvers, OrganizationMemberRole } from '../../../types';
 
@@ -82,7 +83,8 @@ export const createOrganization: MutationResolvers['createOrganization'] = async
 
     const now = Timestamp.now();
 
-    const organizationData = {
+    const organizationData: OrganizationModel = {
+      id: orgId,
       name: args.input.name.trim(),
       description: args.input.description ?? null,
       website: args.input.website ?? null,
@@ -103,10 +105,7 @@ export const createOrganization: MutationResolvers['createOrganization'] = async
       role: OrganizationMemberRole.Owner.toString(),
     });
 
-    return {
-      id: orgId,
-      ...organizationData,
-    };
+    return organizationData;
   } catch (error) {
     console.log(error);
     if (error instanceof GraphQLError) {

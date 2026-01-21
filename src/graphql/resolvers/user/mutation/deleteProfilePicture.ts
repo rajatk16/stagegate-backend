@@ -53,9 +53,9 @@ export const deleteProfilePicture: MutationResolvers['deleteProfilePicture'] = a
     // Delete the profile picture from the storage
     await context.storageBucket.file(`profilePictures/${context.authUser.uid}`).delete();
 
-    const updatedUser = (await userDocRef.get()).data();
+    const updatedUser = await userDocRef.get();
 
-    return adaptUser(updatedUser ?? {});
+    return adaptUser(updatedUser);
   } catch (error) {
     console.log(error);
     if (error instanceof GraphQLError) {

@@ -1,7 +1,11 @@
 import { GraphQLError } from 'graphql';
+import { DocumentSnapshot } from 'firebase-admin/firestore';
+
 import { User } from '../graphql/types';
 
-export const adaptUser = (user: any): User => {
+export const adaptUser = (doc: DocumentSnapshot): User => {
+  const user = doc.data();
+
   if (!user)
     throw new GraphQLError('Invalid user data', {
       extensions: {

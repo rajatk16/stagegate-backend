@@ -14,6 +14,8 @@ const config: CodegenConfig = {
         mappers: {
           Organization: './models#OrganizationModel',
           OrganizationMember: './models#OrganizationMemberModel',
+          Event: './models#EventModel',
+          EventMember: './models#EventMemberModel',
         },
       },
     },
