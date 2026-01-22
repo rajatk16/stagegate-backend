@@ -320,11 +320,16 @@ export type Query = {
   me?: Maybe<User>;
   myOrganizations: Array<Organization>;
   organizationBySlug: Organization;
+  organizationEvents: Array<Event>;
   searchOrganizations: Array<Organization>;
 };
 
 export type QueryOrganizationBySlugArgs = {
   slug: Scalars['String']['input'];
+};
+
+export type QueryOrganizationEventsArgs = {
+  organizationId: Scalars['ID']['input'];
 };
 
 export type QuerySearchOrganizationsArgs = {
@@ -854,6 +859,12 @@ export type QueryResolvers<
     ParentType,
     ContextType,
     RequireFields<QueryOrganizationBySlugArgs, 'slug'>
+  >;
+  organizationEvents?: Resolver<
+    Array<ResolversTypes['Event']>,
+    ParentType,
+    ContextType,
+    RequireFields<QueryOrganizationEventsArgs, 'organizationId'>
   >;
   searchOrganizations?: Resolver<
     Array<ResolversTypes['Organization']>,

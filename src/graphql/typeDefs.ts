@@ -28,6 +28,11 @@ export const typeDefs = gql`
 
     # Get a single organization by its slug
     organizationBySlug(slug: String!): Organization!
+
+    # Event Queries
+
+    # Get a list of events in an organization
+    organizationEvents(organizationId: ID!): [Event!]!
   }
 
   type Mutation {
