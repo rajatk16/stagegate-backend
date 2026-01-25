@@ -236,8 +236,6 @@ export const typeDefs = gql`
     members(first: Int = 20, after: String): EventMembers!
     # The status of the event
     status: EventStatus!
-    # Is the event public
-    isPublic: Boolean!
     # The role of the current user in the parent organization
     viewerOrgRole: OrganizationMemberRole
     # The role of the current user in the event
@@ -473,8 +471,6 @@ export const typeDefs = gql`
     coverImage: String
     # The format of the event
     format: EventFormat!
-    # Whether the event is public (false by default)
-    isPublic: Boolean
   }
 
   # Event Location Input Type. Represents an event location input in the system.

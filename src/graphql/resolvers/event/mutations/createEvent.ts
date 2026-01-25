@@ -33,7 +33,6 @@ export const createEvent: MutationResolvers['createEvent'] = async (
     eventType,
     format,
     location,
-    isPublic,
     name,
     organizationId,
     startDate,
@@ -160,7 +159,6 @@ export const createEvent: MutationResolvers['createEvent'] = async (
       organizationId,
       format,
       status: EventStatus.Draft,
-      isPublic: isPublic ?? false,
       createdAt: now,
       updatedAt: now,
     };

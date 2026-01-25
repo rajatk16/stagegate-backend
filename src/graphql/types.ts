@@ -72,7 +72,6 @@ export type CreateEventInput = {
   endDate?: InputMaybe<Scalars['DateTime']['input']>;
   eventType: EventType;
   format: EventFormat;
-  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
   location?: InputMaybe<EventLocationInput>;
   name: Scalars['String']['input'];
   organizationId: Scalars['ID']['input'];
@@ -103,7 +102,6 @@ export type Event = {
   eventType: EventType;
   format: EventFormat;
   id: Scalars['ID']['output'];
-  isPublic: Scalars['Boolean']['output'];
   location?: Maybe<EventLocation>;
   members: EventMembers;
   name: Scalars['String']['output'];
@@ -648,7 +646,6 @@ export type EventResolvers<
   eventType?: Resolver<ResolversTypes['EventType'], ParentType, ContextType>;
   format?: Resolver<ResolversTypes['EventFormat'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  isPublic?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   location?: Resolver<Maybe<ResolversTypes['EventLocation']>, ParentType, ContextType>;
   members?: Resolver<
     ResolversTypes['EventMembers'],
