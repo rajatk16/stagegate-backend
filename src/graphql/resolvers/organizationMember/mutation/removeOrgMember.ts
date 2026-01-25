@@ -46,7 +46,7 @@ export const removeOrgMember: MutationResolvers['removeOrgMember'] = async (
       });
     }
 
-    const membersRef = orgRef.collection('members');
+    const membersRef = orgRef.collection('organizationMembers');
 
     const [callerSnap, targetSnap] = await Promise.all([
       membersRef.where('userId', '==', authUser.uid).limit(1).get(),

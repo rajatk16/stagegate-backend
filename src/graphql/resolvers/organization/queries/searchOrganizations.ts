@@ -46,7 +46,7 @@ export const searchOrganizations: QueryResolvers['searchOrganizations'] = async 
       const memberSnap = await context.db
         .collection('organizations')
         .doc(doc.id)
-        .collection('members')
+        .collection('organizationMembers')
         .doc(context.authUser.uid)
         .get();
 

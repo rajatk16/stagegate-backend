@@ -46,8 +46,8 @@ export const changeOrgMemberRole: MutationResolvers['changeOrgMemberRole'] = asy
       });
     }
 
-    const requesterRef = orgRef.collection('members').doc(authUser.uid);
-    const targetRef = orgRef.collection('members').doc(userId);
+    const requesterRef = orgRef.collection('organizationMembers').doc(authUser.uid);
+    const targetRef = orgRef.collection('organizationMembers').doc(userId);
 
     const [requesterSnap, targetSnap] = await Promise.all([
       requesterRef.get(),

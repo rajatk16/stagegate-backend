@@ -1,4 +1,5 @@
 import { Timestamp } from 'firebase-admin/firestore';
+
 import { EventResolvers } from '../../../types';
 
 export const members: EventResolvers['members'] = async (parent, args, { db }) => {
@@ -7,7 +8,7 @@ export const members: EventResolvers['members'] = async (parent, args, { db }) =
   let query = db
     .collection('events')
     .doc(parent.id)
-    .collection('members')
+    .collection('eventMembers')
     .orderBy('joinedAt', 'desc')
     .limit(first);
 

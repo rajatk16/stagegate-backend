@@ -46,7 +46,7 @@ export const organizationBySlug: QueryResolvers['organizationBySlug'] = async (
     const membershipDoc = await db
       .collection('organizations')
       .doc(doc.id)
-      .collection('members')
+      .collection('organizationMembers')
       .doc(authUser.uid)
       .get();
 

@@ -38,7 +38,7 @@ export const updateOrganization: MutationResolvers['updateOrganization'] = async
       });
     }
 
-    const memberRef = orgRef.collection('members').doc(authUser.uid);
+    const memberRef = orgRef.collection('organizationMembers').doc(authUser.uid);
     const memberSnap = await memberRef.get();
 
     if (!memberSnap.exists) {

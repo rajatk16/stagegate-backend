@@ -55,7 +55,10 @@ export const createEvent: MutationResolvers['createEvent'] = async (
       });
     }
 
-    const orgMemberSnap = await orgRef.collection('members').doc(authUser.uid).get();
+    const orgMemberSnap = await orgRef
+      .collection('organizationMembers')
+      .doc(authUser.uid)
+      .get();
 
     if (!orgMemberSnap.exists) {
       throw new GraphQLError('You are not a member of this organization', {
@@ -163,7 +166,7 @@ export const createEvent: MutationResolvers['createEvent'] = async (
       updatedAt: now,
     };
 
-    const orgMembersSnap = await orgRef.collection('members').get();
+    const orgMembersSnap = await orgRef.collection('organizationMembers').get();
 
     const batch = db.batch();
 
@@ -185,7 +188,7 @@ export const createEvent: MutationResolvers['createEvent'] = async (
         orgId: organizationId,
       };
 
-      batch.set(eventRef.collection('members').doc(), member);
+      batch.set(eventRef.collection('eventMembers').doc(), member);
     });
 
     await batch.commit();

@@ -8,7 +8,7 @@ export const members: OrganizationResolvers['members'] = async (parent, args, co
   let query = context.db
     .collection('organizations')
     .doc(parent.id)
-    .collection('members')
+    .collection('organizationMembers')
     .orderBy('joinedAt', 'desc')
     .limit(first);
 

@@ -23,7 +23,7 @@ export const myOrganizations: QueryResolvers['myOrganizations'] = async (
     const userId = context.authUser.uid;
 
     const membershipSnapshot = await context.db
-      .collectionGroup('members')
+      .collectionGroup('organizationMembers')
       .where('userId', '==', userId)
       .orderBy('joinedAt', 'desc')
       .get();
