@@ -12,7 +12,7 @@ export const viewerEventRole: EventResolvers['viewerEventRole'] = async (
     }
 
     const memberSnapshot = await db
-      .collectionGroup('members')
+      .collectionGroup('eventMembers')
       .where('eventId', '==', parent.id)
       .where('userId', '==', authUser.uid)
       .limit(1)

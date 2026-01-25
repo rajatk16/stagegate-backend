@@ -14,7 +14,7 @@ export const viewerRole: OrganizationResolvers['viewerRole'] = async (
 
     // Check if the user is a member of the organization
     const memberSnapshot = await context.db
-      .collectionGroup('members')
+      .collectionGroup('organizationMembers')
       .where('orgId', '==', parent.id)
       .where('userId', '==', context.authUser?.uid)
       .limit(1)

@@ -98,7 +98,7 @@ export const createOrganization: MutationResolvers['createOrganization'] = async
 
     await orgRef.set(organizationData);
 
-    await orgRef.collection('members').doc(context.authUser.uid).set({
+    await orgRef.collection('organizationMembers').doc(context.authUser.uid).set({
       joinedAt: now,
       orgId,
       userId: context.authUser.uid,

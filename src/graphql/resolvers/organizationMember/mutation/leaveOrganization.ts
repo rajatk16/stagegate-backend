@@ -35,7 +35,7 @@ export const leaveOrganization: MutationResolvers['leaveOrganization'] = async (
     }
 
     const memberSnap = await orgRef
-      .collection('members')
+      .collection('organizationMembers')
       .where('userId', '==', authUser.uid)
       .limit(1)
       .get();
@@ -65,7 +65,7 @@ export const leaveOrganization: MutationResolvers['leaveOrganization'] = async (
       });
     }
 
-    const membersCountSnap = await orgRef.collection('members').count().get();
+    const membersCountSnap = await orgRef.collection('organizationMembers').count().get();
 
     if (membersCountSnap.data().count === 1) {
       throw new GraphQLError('Organization must have atleast one member', {

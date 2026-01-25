@@ -52,7 +52,7 @@ export const joinOrganization: MutationResolvers['joinOrganization'] = async (
       });
     }
 
-    const memberRef = orgRef.collection('members').doc(uid);
+    const memberRef = orgRef.collection('organizationMembers').doc(uid);
     const memberSnap = await memberRef.get();
 
     if (memberSnap.exists) {
