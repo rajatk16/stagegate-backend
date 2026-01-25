@@ -40,7 +40,6 @@ export type EventModel = {
   organizationId: string;
   format: string;
   status: string;
-  isPublic: boolean;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 };

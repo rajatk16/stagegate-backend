@@ -32,7 +32,6 @@ export const adaptEvent = (doc: DocumentSnapshot): EventModel => {
     organizationId: data.organizationId,
     format: data.format,
     status: data.status,
-    isPublic: data.isPublic,
     createdAt: data.createdAt,
     updatedAt: data.updatedAt,
   };

@@ -1,13 +1,7 @@
 import { GraphQLError } from 'graphql';
 
-import {
-  EventStatus,
-  QueryResolvers,
-  EventMemberRole,
-  OrganizationMemberRole,
-} from '../../../types';
+import { QueryResolvers } from '../../../types';
 import { adaptEvent } from '../../../../utils';
-import { EventMemberModel, EventModel, OrganizationMemberModel } from '../../../models';
 
 export const organizationEvents: QueryResolvers['organizationEvents'] = async (
   _parent,
@@ -41,16 +35,6 @@ export const organizationEvents: QueryResolvers['organizationEvents'] = async (
 
     const orgRef = orgSnap.ref;
 
-    const orgMemberSnap = await orgRef.collection('members').doc(authUser.uid).get();
-
-    const viewerOrgRole = orgMemberSnap.exists
-      ? ((orgMemberSnap.data() as OrganizationMemberModel).role as OrganizationMemberRole)
-      : null;
-
-    const isOrgAdmin =
-      viewerOrgRole === OrganizationMemberRole.Admin ||
-      viewerOrgRole === OrganizationMemberRole.Owner;
-
     const eventsSnap = await orgRef.collection('events').orderBy('createdAt', 'desc').get();
 
     if (eventsSnap.empty || eventsSnap.docs.length === 0) {
@@ -60,50 +44,6 @@ export const organizationEvents: QueryResolvers['organizationEvents'] = async (
     const visibleEvents = [];
 
     for (const eventDoc of eventsSnap.docs) {
-      const eventData = eventDoc.data() as EventModel;
-      const eventRef = eventDoc.ref;
-
-      const status = eventData.status as EventStatus;
-      const isPublic = eventData.isPublic;
-
-      const eventMemberSnap = await eventRef.collection('members').doc(authUser.uid).get();
-
-      const eventViewerRole = eventMemberSnap.exists
-        ? ((eventMemberSnap.data() as EventMemberModel).role as EventMemberRole)
-        : null;
-
-      let canSee = false;
-
-      if (isOrgAdmin) {
-        canSee = true;
-      } else if (status === EventStatus.Published) {
-        if (isPublic) {
-          canSee = true;
-        } else if (viewerOrgRole) {
-          canSee = true;
-        }
-      } else if (status === EventStatus.Draft) {
-        if (
-          eventViewerRole &&
-          (eventViewerRole === EventMemberRole.Organizer ||
-            eventViewerRole === EventMemberRole.Reviewer)
-        ) {
-          canSee = true;
-        }
-      } else if (status === EventStatus.Archived) {
-        if (
-          eventViewerRole &&
-          (eventViewerRole === EventMemberRole.Organizer ||
-            eventViewerRole === EventMemberRole.Reviewer)
-        ) {
-          canSee = true;
-        }
-      }
-
-      if (!canSee) {
-        continue;
-      }
-
       visibleEvents.push(adaptEvent(eventDoc));
     }
 
