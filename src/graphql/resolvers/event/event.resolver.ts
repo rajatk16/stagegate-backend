@@ -1,7 +1,16 @@
 import { Resolvers } from '../../types';
 import { createEvent } from './mutations';
 import { organizationEvents } from './query';
-import { members, organization, viewerEventRole, viewerOrgRole } from './fieldResolvers';
+import {
+  members,
+  organization,
+  viewerEventRole,
+  viewerOrgRole,
+  startDate,
+  endDate,
+  createdAt,
+  updatedAt,
+} from './fieldResolvers';
 
 export const resolvers: Resolvers = {
   Event: {
@@ -9,6 +18,10 @@ export const resolvers: Resolvers = {
     organization,
     viewerOrgRole,
     viewerEventRole,
+    startDate,
+    endDate,
+    createdAt,
+    updatedAt,
   },
   Query: {
     organizationEvents,

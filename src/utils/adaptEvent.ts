@@ -1,7 +1,7 @@
 import { GraphQLError } from 'graphql';
-import { DocumentSnapshot } from 'firebase-admin/firestore';
 
 import { EventModel } from '../graphql/models';
+import { DocumentSnapshot } from 'firebase-admin/firestore';
 
 export const adaptEvent = (doc: DocumentSnapshot): EventModel => {
   const data = doc.data();

@@ -1,6 +1,6 @@
 import { Resolvers } from '../../types';
-import { members, owner, viewerRole } from './fieldResolvers';
 import { createOrganization, updateOrganization } from './mutation';
+import { members, owner, viewerRole, createdAt, updatedAt } from './fieldResolvers';
 import { myOrganizations, organizationBySlug, searchOrganizations } from './queries';
 
 export const resolvers: Resolvers = {
@@ -17,5 +17,7 @@ export const resolvers: Resolvers = {
     owner,
     members,
     viewerRole,
+    createdAt,
+    updatedAt,
   },
 };
