@@ -137,7 +137,7 @@ export const createEvent: MutationResolvers['createEvent'] = async (
       });
     }
 
-    const eventRef = db.collection('events').doc();
+    const eventRef = orgRef.collection('events').doc();
     const eventId = eventRef.id;
 
     const now = Timestamp.now();
