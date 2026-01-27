@@ -1,6 +1,6 @@
 import { Resolvers } from '../../types';
 import { createEvent } from './mutations';
-import { organizationEvents } from './query';
+import { organizationEvents, eventBySlug } from './query';
 import {
   members,
   organization,
@@ -25,6 +25,7 @@ export const resolvers: Resolvers = {
   },
   Query: {
     organizationEvents,
+    eventBySlug,
   },
   Mutation: {
     createEvent,
