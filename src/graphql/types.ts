@@ -315,11 +315,17 @@ export type Pagination = {
 export type Query = {
   __typename?: 'Query';
   authStatus?: Maybe<AuthStatus>;
+  eventBySlug: Event;
   me?: Maybe<User>;
   myOrganizations: Array<Organization>;
   organizationBySlug: Organization;
   organizationEvents: Array<Event>;
   searchOrganizations: Array<Organization>;
+};
+
+export type QueryEventBySlugArgs = {
+  eventSlug: Scalars['String']['input'];
+  organizationSlug: Scalars['String']['input'];
 };
 
 export type QueryOrganizationBySlugArgs = {
@@ -849,6 +855,12 @@ export type QueryResolvers<
   ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query'],
 > = {
   authStatus?: Resolver<Maybe<ResolversTypes['AuthStatus']>, ParentType, ContextType>;
+  eventBySlug?: Resolver<
+    ResolversTypes['Event'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryEventBySlugArgs, 'eventSlug' | 'organizationSlug'>
+  >;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   myOrganizations?: Resolver<Array<ResolversTypes['Organization']>, ParentType, ContextType>;
   organizationBySlug?: Resolver<
