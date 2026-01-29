@@ -6,6 +6,8 @@ export const members: EventResolvers['members'] = async (parent, args, { db }) =
   const { first, after } = args;
 
   let query = db
+    .collection('organizations')
+    .doc(parent.organizationId)
     .collection('events')
     .doc(parent.id)
     .collection('eventMembers')
