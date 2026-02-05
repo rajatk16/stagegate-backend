@@ -1,5 +1,5 @@
 import { Resolvers } from '../../types';
-import { createEvent } from './mutations';
+import { createEvent, updateEvent } from './mutations';
 import { organizationEvents, eventBySlug } from './query';
 import {
   members,
@@ -29,5 +29,6 @@ export const resolvers: Resolvers = {
   },
   Mutation: {
     createEvent,
+    updateEvent,
   },
 };

@@ -210,6 +210,7 @@ export type Mutation = {
   leaveOrganization: LeaveOrganizationPayload;
   removeOrgMember: RemoveOrgMemberPayload;
   signUp: AuthPayload;
+  updateEvent: Event;
   updateOrganization: Organization;
   updateProfilePicture: User;
   updateUser: User;
@@ -241,6 +242,10 @@ export type MutationRemoveOrgMemberArgs = {
 
 export type MutationSignUpArgs = {
   input: SignUpInput;
+};
+
+export type MutationUpdateEventArgs = {
+  input: UpdateEventInput;
 };
 
 export type MutationUpdateOrganizationArgs = {
@@ -367,6 +372,20 @@ export type SocialMedia = {
 export type SocialMediaInput = {
   handle: Scalars['String']['input'];
   platform: Scalars['String']['input'];
+};
+
+export type UpdateEventInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  endDate?: InputMaybe<Scalars['DateTime']['input']>;
+  eventId: Scalars['ID']['input'];
+  eventType?: InputMaybe<EventType>;
+  format?: InputMaybe<EventFormat>;
+  location?: InputMaybe<EventLocationInput>;
+  organizationId: Scalars['ID']['input'];
+  startDate?: InputMaybe<Scalars['DateTime']['input']>;
+  status?: InputMaybe<EventStatus>;
+  tagline?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateOrganizationInput = {
@@ -547,6 +566,7 @@ export type ResolversTypes = {
   SocialMedia: ResolverTypeWrapper<SocialMedia>;
   SocialMediaInput: SocialMediaInput;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  UpdateEventInput: UpdateEventInput;
   UpdateOrganizationInput: UpdateOrganizationInput;
   UpdateUserInput: UpdateUserInput;
   User: ResolverTypeWrapper<User>;
@@ -596,6 +616,7 @@ export type ResolversParentTypes = {
   SocialMedia: SocialMedia;
   SocialMediaInput: SocialMediaInput;
   String: Scalars['String']['output'];
+  UpdateEventInput: UpdateEventInput;
   UpdateOrganizationInput: UpdateOrganizationInput;
   UpdateUserInput: UpdateUserInput;
   User: User;
@@ -766,6 +787,12 @@ export type MutationResolvers<
     ParentType,
     ContextType,
     RequireFields<MutationSignUpArgs, 'input'>
+  >;
+  updateEvent?: Resolver<
+    ResolversTypes['Event'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationUpdateEventArgs, 'input'>
   >;
   updateOrganization?: Resolver<
     ResolversTypes['Organization'],
