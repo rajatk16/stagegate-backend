@@ -79,6 +79,9 @@ export const typeDefs = gql`
 
     # Create a new event
     createEvent(input: CreateEventInput!): CreateEventPayload!
+
+    # Update an event
+    updateEvent(input: UpdateEventInput!): Event!
   }
 
   # User Type. Represents a user in the system.
@@ -486,6 +489,32 @@ export const typeDefs = gql`
     city: String
     # The country of the location
     country: String
+  }
+
+  # Update Event Input Type. Represents an update event input in the system.
+  input UpdateEventInput {
+    # The ID of the organization
+    organizationId: ID!
+    # The ID of the event
+    eventId: ID!
+    # The type of the event
+    eventType: EventType
+    # The description of the event
+    description: String
+    # The tagline of the event
+    tagline: String
+    # The startDate of the event
+    startDate: DateTime
+    # The endDate of the event
+    endDate: DateTime
+    # The location of the event
+    location: EventLocationInput
+    # The website of the event
+    website: String
+    # The format of the event
+    format: EventFormat
+    # The status of the event
+    status: EventStatus
   }
 
   # Auth Payload Type. Represents an auth payload in the system.
