@@ -8,7 +8,7 @@ import {
   MutationResolvers,
   OrganizationMemberRole,
 } from '../../../types';
-import { adaptEvent } from 'src/utils';
+import { adaptEvent } from '../../../../utils';
 
 export const updateEvent: MutationResolvers['updateEvent'] = async (
   _parent,
