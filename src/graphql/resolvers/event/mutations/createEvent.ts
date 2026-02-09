@@ -188,7 +188,7 @@ export const createEvent: MutationResolvers['createEvent'] = async (
         orgId: organizationId,
       };
 
-      batch.set(eventRef.collection('eventMembers').doc(), member);
+      batch.set(eventRef.collection('eventMembers').doc(authUser.uid), member);
     });
 
     await batch.commit();
