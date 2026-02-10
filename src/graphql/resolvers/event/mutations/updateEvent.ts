@@ -188,6 +188,7 @@ export const updateEvent: MutationResolvers['updateEvent'] = async (
     if (updates.status) patch.status = updates.status;
     if (updates.tagline !== undefined) patch.tagline = updates.tagline;
     if (updates.website !== undefined) patch.website = updates.website;
+    if (updates.coverImage !== undefined) patch.coverImage = updates.coverImage;
 
     await eventRef.update(patch);
 

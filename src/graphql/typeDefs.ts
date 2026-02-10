@@ -515,6 +515,8 @@ export const typeDefs = gql`
     format: EventFormat
     # The status of the event
     status: EventStatus
+    # The cover image of the event
+    coverImage: String
   }
 
   # Auth Payload Type. Represents an auth payload in the system.
