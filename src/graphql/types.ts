@@ -375,6 +375,7 @@ export type SocialMediaInput = {
 };
 
 export type UpdateEventInput = {
+  coverImage?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   endDate?: InputMaybe<Scalars['DateTime']['input']>;
   eventId: Scalars['ID']['input'];
