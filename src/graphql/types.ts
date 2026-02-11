@@ -317,6 +317,38 @@ export type Pagination = {
   pageSize?: Maybe<Scalars['Int']['output']>;
 };
 
+export type Proposal = {
+  __typename?: 'Proposal';
+  abstract?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  duration?: Maybe<Scalars['Int']['output']>;
+  eventId: Scalars['ID']['output'];
+  format: ProposalFormat;
+  id: Scalars['ID']['output'];
+  organizationId: Scalars['ID']['output'];
+  speaker: User;
+  status: ProposalStatus;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export enum ProposalFormat {
+  LightningTalk = 'LIGHTNING_TALK',
+  Other = 'OTHER',
+  Panel = 'PANEL',
+  Talk = 'TALK',
+  Workshop = 'WORKSHOP',
+}
+
+export enum ProposalStatus {
+  Accepted = 'ACCEPTED',
+  Draft = 'DRAFT',
+  Rejected = 'REJECTED',
+  Submitted = 'SUBMITTED',
+  Withdrawn = 'WITHDRAWN',
+}
+
 export type Query = {
   __typename?: 'Query';
   authStatus?: Maybe<AuthStatus>;
@@ -560,6 +592,9 @@ export type ResolversTypes = {
     }
   >;
   Pagination: ResolverTypeWrapper<Pagination>;
+  Proposal: ResolverTypeWrapper<Proposal>;
+  ProposalFormat: ProposalFormat;
+  ProposalStatus: ProposalStatus;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   RemoveOrgMemberInput: RemoveOrgMemberInput;
   RemoveOrgMemberPayload: ResolverTypeWrapper<RemoveOrgMemberPayload>;
@@ -610,6 +645,7 @@ export type ResolversParentTypes = {
     results: Array<ResolversParentTypes['OrganizationMember']>;
   };
   Pagination: Pagination;
+  Proposal: Proposal;
   Query: Record<PropertyKey, never>;
   RemoveOrgMemberInput: RemoveOrgMemberInput;
   RemoveOrgMemberPayload: RemoveOrgMemberPayload;
@@ -878,6 +914,24 @@ export type PaginationResolvers<
   pageSize?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
 };
 
+export type ProposalResolvers<
+  ContextType = DataSourceContext,
+  ParentType extends ResolversParentTypes['Proposal'] = ResolversParentTypes['Proposal'],
+> = {
+  abstract?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  duration?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  eventId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  format?: Resolver<ResolversTypes['ProposalFormat'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  organizationId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  speaker?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ProposalStatus'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+};
+
 export type QueryResolvers<
   ContextType = DataSourceContext,
   ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query'],
@@ -962,6 +1016,7 @@ export type Resolvers<ContextType = DataSourceContext> = {
   OrganizationMember?: OrganizationMemberResolvers<ContextType>;
   OrganizationMembers?: OrganizationMembersResolvers<ContextType>;
   Pagination?: PaginationResolvers<ContextType>;
+  Proposal?: ProposalResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   RemoveOrgMemberPayload?: RemoveOrgMemberPayloadResolvers<ContextType>;
   SocialMedia?: SocialMediaResolvers<ContextType>;

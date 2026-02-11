@@ -328,6 +328,59 @@ export const typeDefs = gql`
     GUEST
   }
 
+  type Proposal {
+    # The unique identifier for the proposal
+    id: ID!
+    # The event that the proposal is for
+    eventId: ID!
+    # The organization that the proposal is for
+    organizationId: ID!
+    # The title of the proposal
+    title: String!
+    # The short description of the proposal
+    abstract: String
+    # The full description of the proposal
+    description: String
+    # Talk duration in minutes
+    duration: Int
+    # The speaker of the proposal
+    speaker: User!
+    # The status of the proposal
+    status: ProposalStatus!
+    # The format of the proposal
+    format: ProposalFormat!
+    # The date and time the proposal was created
+    createdAt: DateTime!
+    # The date and time the proposal was last updated
+    updatedAt: DateTime!
+  }
+
+  enum ProposalStatus {
+    # The proposal is a draft
+    DRAFT
+    # The proposal is submitted
+    SUBMITTED
+    # The proposal is accepted
+    ACCEPTED
+    # The proposal is rejected
+    REJECTED
+    # The proposal is withdrawn
+    WITHDRAWN
+  }
+
+  enum ProposalFormat {
+    # The proposal is a talk
+    TALK
+    # The proposal is a workshop
+    WORKSHOP
+    # The proposal is a panel
+    PANEL
+    # The proposal is a lightning talk
+    LIGHTNING_TALK
+    # The proposal is of other type
+    OTHER
+  }
+
   # Contains information about the current page, when results are split into multiple pages.
   type Pagination {
     # The address of the next page, if one exists. If the current page is the last page, "cursor" is "null".
