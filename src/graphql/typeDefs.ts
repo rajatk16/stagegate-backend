@@ -328,6 +328,7 @@ export const typeDefs = gql`
     GUEST
   }
 
+  # Proposal Type. Represents a proposal in the system.
   type Proposal {
     # The unique identifier for the proposal
     id: ID!
@@ -338,7 +339,7 @@ export const typeDefs = gql`
     # The title of the proposal
     title: String!
     # The short description of the proposal
-    abstract: String
+    abstract: String!
     # The full description of the proposal
     description: String
     # Talk duration in minutes
@@ -353,8 +354,13 @@ export const typeDefs = gql`
     createdAt: DateTime!
     # The date and time the proposal was last updated
     updatedAt: DateTime!
+    # The time when the proposal was submitted
+    submittedAt: DateTime
+    # The role of the current user in the proposal
+    viewerRole: ProposalViewerRole
   }
 
+  # Represents the status of a proposal.
   enum ProposalStatus {
     # The proposal is a draft
     DRAFT
@@ -368,6 +374,7 @@ export const typeDefs = gql`
     WITHDRAWN
   }
 
+  # Represents the format of a proposal.
   enum ProposalFormat {
     # The proposal is a talk
     TALK
@@ -379,6 +386,16 @@ export const typeDefs = gql`
     LIGHTNING_TALK
     # The proposal is of other type
     OTHER
+  }
+
+  # Represents the role of a user in a proposal.
+  enum ProposalViewerRole {
+    # The user is the speaker of the proposal
+    SPEAKER
+    # The user is a reviewer of the proposal
+    REVIEWER
+    # The user is an organizer of the proposal's parent event
+    ORGANIZER
   }
 
   # Contains information about the current page, when results are split into multiple pages.
