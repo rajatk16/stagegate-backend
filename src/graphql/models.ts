@@ -51,3 +51,21 @@ export type EventMemberModel = {
   eventId: string;
   joinedAt: Timestamp;
 };
+
+export type ProposalModel = {
+  id: string;
+  eventId: string;
+  organizationId: string;
+  title: string;
+  abstract?: string | null;
+  description?: string | null;
+  duration?: number | null;
+  speakerId: string;
+  status: string;
+  format: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  submittedAt?: Timestamp | null;
+  normalizedTitle: string;
+  submissionHash: string;
+};

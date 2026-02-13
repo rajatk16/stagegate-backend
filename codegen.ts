@@ -16,6 +16,7 @@ const config: CodegenConfig = {
           OrganizationMember: './models#OrganizationMemberModel',
           Event: './models#EventModel',
           EventMember: './models#EventMemberModel',
+          Proposal: './models#ProposalModel',
         },
       },
     },

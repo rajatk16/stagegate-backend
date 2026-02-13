@@ -4,6 +4,7 @@ import {
   OrganizationMemberModel,
   EventModel,
   EventMemberModel,
+  ProposalModel,
 } from './models';
 import { DataSourceContext } from './context';
 export type Maybe<T> = T | null;
@@ -45,6 +46,20 @@ export type AuthStatus = {
   email: Scalars['String']['output'];
   emailVerified: Scalars['Boolean']['output'];
   uid: Scalars['ID']['output'];
+};
+
+export type BulkCreateProposalsInput = {
+  eventId: Scalars['ID']['input'];
+  format: ProposalFormat;
+  organizationId: Scalars['ID']['input'];
+  proposals: Array<ProposalInput>;
+};
+
+export type BulkCreateProposalsPayload = {
+  __typename?: 'BulkCreateProposalsPayload';
+  created: Scalars['Int']['output'];
+  skipped: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
 };
 
 export type ChangeOrgMemberRoleInput = {
@@ -202,6 +217,7 @@ export type LocationInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  bulkCreateProposals: BulkCreateProposalsPayload;
   changeOrgMemberRole: OrganizationMember;
   createEvent: CreateEventPayload;
   createOrganization: Organization;
@@ -214,6 +230,10 @@ export type Mutation = {
   updateOrganization: Organization;
   updateProfilePicture: User;
   updateUser: User;
+};
+
+export type MutationBulkCreateProposalsArgs = {
+  input: BulkCreateProposalsInput;
 };
 
 export type MutationChangeOrgMemberRoleArgs = {
@@ -323,14 +343,16 @@ export type Proposal = {
   createdAt: Scalars['DateTime']['output'];
   description?: Maybe<Scalars['String']['output']>;
   duration?: Maybe<Scalars['Int']['output']>;
-  eventId: Scalars['ID']['output'];
+  event: Event;
   format: ProposalFormat;
   id: Scalars['ID']['output'];
-  organizationId: Scalars['ID']['output'];
+  organization: Organization;
   speaker: User;
   status: ProposalStatus;
+  submittedAt?: Maybe<Scalars['DateTime']['output']>;
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+  viewerRole?: Maybe<ProposalViewerRole>;
 };
 
 export enum ProposalFormat {
@@ -341,12 +363,31 @@ export enum ProposalFormat {
   Workshop = 'WORKSHOP',
 }
 
+export type ProposalInput = {
+  abstract: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  duration?: InputMaybe<Scalars['Int']['input']>;
+  speakerBio?: InputMaybe<Scalars['String']['input']>;
+  speakerContactInfo?: InputMaybe<ContactInfoInput>;
+  speakerEmail: Scalars['String']['input'];
+  speakerLocation?: InputMaybe<LocationInput>;
+  speakerName: Scalars['String']['input'];
+  speakerOccupation?: InputMaybe<OccupationInput>;
+  title: Scalars['String']['input'];
+};
+
 export enum ProposalStatus {
   Accepted = 'ACCEPTED',
   Draft = 'DRAFT',
   Rejected = 'REJECTED',
   Submitted = 'SUBMITTED',
   Withdrawn = 'WITHDRAWN',
+}
+
+export enum ProposalViewerRole {
+  Organizer = 'ORGANIZER',
+  Reviewer = 'REVIEWER',
+  Speaker = 'SPEAKER',
 }
 
 export type Query = {
@@ -553,6 +594,8 @@ export type ResolversTypes = {
   AuthPayload: ResolverTypeWrapper<AuthPayload>;
   AuthStatus: ResolverTypeWrapper<AuthStatus>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  BulkCreateProposalsInput: BulkCreateProposalsInput;
+  BulkCreateProposalsPayload: ResolverTypeWrapper<BulkCreateProposalsPayload>;
   ChangeOrgMemberRoleInput: ChangeOrgMemberRoleInput;
   ContactInfo: ResolverTypeWrapper<ContactInfo>;
   ContactInfoInput: ContactInfoInput;
@@ -592,9 +635,11 @@ export type ResolversTypes = {
     }
   >;
   Pagination: ResolverTypeWrapper<Pagination>;
-  Proposal: ResolverTypeWrapper<Proposal>;
+  Proposal: ResolverTypeWrapper<ProposalModel>;
   ProposalFormat: ProposalFormat;
+  ProposalInput: ProposalInput;
   ProposalStatus: ProposalStatus;
+  ProposalViewerRole: ProposalViewerRole;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   RemoveOrgMemberInput: RemoveOrgMemberInput;
   RemoveOrgMemberPayload: ResolverTypeWrapper<RemoveOrgMemberPayload>;
@@ -613,6 +658,8 @@ export type ResolversParentTypes = {
   AuthPayload: AuthPayload;
   AuthStatus: AuthStatus;
   Boolean: Scalars['Boolean']['output'];
+  BulkCreateProposalsInput: BulkCreateProposalsInput;
+  BulkCreateProposalsPayload: BulkCreateProposalsPayload;
   ChangeOrgMemberRoleInput: ChangeOrgMemberRoleInput;
   ContactInfo: ContactInfo;
   ContactInfoInput: ContactInfoInput;
@@ -645,7 +692,8 @@ export type ResolversParentTypes = {
     results: Array<ResolversParentTypes['OrganizationMember']>;
   };
   Pagination: Pagination;
-  Proposal: Proposal;
+  Proposal: ProposalModel;
+  ProposalInput: ProposalInput;
   Query: Record<PropertyKey, never>;
   RemoveOrgMemberInput: RemoveOrgMemberInput;
   RemoveOrgMemberPayload: RemoveOrgMemberPayload;
@@ -675,6 +723,16 @@ export type AuthStatusResolvers<
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   emailVerified?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   uid?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+};
+
+export type BulkCreateProposalsPayloadResolvers<
+  ContextType = DataSourceContext,
+  ParentType extends
+    ResolversParentTypes['BulkCreateProposalsPayload'] = ResolversParentTypes['BulkCreateProposalsPayload'],
+> = {
+  created?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  skipped?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
 };
 
 export type ContactInfoResolvers<
@@ -782,6 +840,12 @@ export type MutationResolvers<
   ContextType = DataSourceContext,
   ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation'],
 > = {
+  bulkCreateProposals?: Resolver<
+    ResolversTypes['BulkCreateProposalsPayload'],
+    ParentType,
+    ContextType,
+    RequireFields<MutationBulkCreateProposalsArgs, 'input'>
+  >;
   changeOrgMemberRole?: Resolver<
     ResolversTypes['OrganizationMember'],
     ParentType,
@@ -922,14 +986,16 @@ export type ProposalResolvers<
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   duration?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  eventId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  event?: Resolver<ResolversTypes['Event'], ParentType, ContextType>;
   format?: Resolver<ResolversTypes['ProposalFormat'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  organizationId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  organization?: Resolver<ResolversTypes['Organization'], ParentType, ContextType>;
   speaker?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['ProposalStatus'], ParentType, ContextType>;
+  submittedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  viewerRole?: Resolver<Maybe<ResolversTypes['ProposalViewerRole']>, ParentType, ContextType>;
 };
 
 export type QueryResolvers<
@@ -1001,6 +1067,7 @@ export type UserResolvers<
 export type Resolvers<ContextType = DataSourceContext> = {
   AuthPayload?: AuthPayloadResolvers<ContextType>;
   AuthStatus?: AuthStatusResolvers<ContextType>;
+  BulkCreateProposalsPayload?: BulkCreateProposalsPayloadResolvers<ContextType>;
   ContactInfo?: ContactInfoResolvers<ContextType>;
   CreateEventPayload?: CreateEventPayloadResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
