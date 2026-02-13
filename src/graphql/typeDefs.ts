@@ -82,6 +82,11 @@ export const typeDefs = gql`
 
     # Update an event
     updateEvent(input: UpdateEventInput!): Event!
+
+    # Proposal Mutations
+
+    # Create proposals in bulk
+    bulkCreateProposals(input: BulkCreateProposalsInput!): BulkCreateProposalsPayload!
   }
 
   # User Type. Represents a user in the system.
@@ -333,13 +338,13 @@ export const typeDefs = gql`
     # The unique identifier for the proposal
     id: ID!
     # The event that the proposal is for
-    eventId: ID!
+    event: Event!
     # The organization that the proposal is for
-    organizationId: ID!
+    organization: Organization!
     # The title of the proposal
     title: String!
     # The short description of the proposal
-    abstract: String!
+    abstract: String
     # The full description of the proposal
     description: String
     # Talk duration in minutes
@@ -589,6 +594,42 @@ export const typeDefs = gql`
     coverImage: String
   }
 
+  # Bulk Create Proposals Input Type. Represents a bulk create proposals input in the system.
+  input BulkCreateProposalsInput {
+    # The ID of the event
+    eventId: ID!
+    # The ID of the organization
+    organizationId: ID!
+    # The format of the proposals
+    format: ProposalFormat!
+    # The proposals to create
+    proposals: [ProposalInput!]!
+  }
+
+  # Proposal Input Type. Represents a proposal input in the system.
+  input ProposalInput {
+    # The title of the proposal
+    title: String!
+    # The abstract of the proposal
+    abstract: String!
+    # The description of the proposal
+    description: String
+    # The duration of the proposed talk in minutes
+    duration: Int
+    # The name of the speaker
+    speakerName: String!
+    # The email of the speaker
+    speakerEmail: String!
+    # The location of the speaker
+    speakerLocation: LocationInput
+    # The bio of the speaker
+    speakerBio: String
+    # The occupation of the speaker
+    speakerOccupation: OccupationInput
+    # The contact information of the speaker
+    speakerContactInfo: ContactInfoInput
+  }
+
   # Auth Payload Type. Represents an auth payload in the system.
   type AuthPayload {
     # The unique identifier for the user
@@ -614,5 +655,15 @@ export const typeDefs = gql`
   # The payload type for creating an event.
   type CreateEventPayload {
     event: Event!
+  }
+
+  # Bulk Create Proposals Payload Type. Represents a bulk create proposals payload in the system.
+  type BulkCreateProposalsPayload {
+    # The total number of proposals to be created
+    total: Int!
+    # The number of proposals that were created
+    created: Int!
+    # The number of proposals that were not created
+    skipped: Int!
   }
 `;

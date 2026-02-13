@@ -2,21 +2,22 @@ import { GraphQLError } from 'graphql';
 
 import { adaptUser } from '../../../../utils';
 import { MutationResolvers } from '../../../types';
+import { Timestamp } from 'firebase-admin/firestore';
 
-export const signUp: MutationResolvers['signUp'] = async (_parent, args, context) => {
-  const existingUserSnap = await context.db
-    .collection('users')
-    .where('email', '==', args.input.email)
-    .limit(1)
-    .get();
+export const signUp: MutationResolvers['signUp'] = async (_parent, { input }, { db, auth }) => {
+  const normalizedEmail = input.email.trim().toLowerCase();
+  const usersRef = db.collection('users');
+
+  const existingUserSnap = await usersRef.where('email', '==', normalizedEmail).limit(1).get();
 
   let firestoreDoc = existingUserSnap.empty ? null : existingUserSnap.docs[0];
-  const firestoreUser = firestoreDoc ? firestoreDoc.data() : null;
+
+  const firestoreUser = firestoreDoc?.data() ?? null;
 
   let authUserRecord = null;
 
   try {
-    authUserRecord = await context.auth.getUserByEmail(args.input.email);
+    authUserRecord = await auth.getUserByEmail(normalizedEmail);
   } catch (error) {
     if (error.code !== 'auth/user-not-found') {
       throw new GraphQLError(error.message, {
@@ -42,63 +43,74 @@ export const signUp: MutationResolvers['signUp'] = async (_parent, args, context
   }
 
   if (firestoreUser && !authUserRecord) {
-    const newAuthUser = await context.auth.createUser({
-      email: args.input.email,
-      password: args.input.password,
-      displayName: args.input.name,
-      emailVerified: false,
+    const externalId = firestoreUser.id;
+
+    const newAuthUser = await auth.createUser({
+      uid: externalId,
+      email: normalizedEmail,
+      password: input.password,
+      displayName: input.name,
+      emailVerified: true,
     });
 
-    const now = new Date().toISOString();
+    const now = Timestamp.now();
 
-    const newUserData = {
-      ...firestoreUser,
-      id: newAuthUser.uid,
-      name: args.input.name,
+    await firestoreDoc!.ref.update({
+      name: input.name,
       updatedAt: now,
-    };
+    });
 
-    const batch = context.db.batch();
+    const updatedDoc = await firestoreDoc!.ref.get();
 
-    const newDocRef = context.db.collection('users').doc(newAuthUser.uid);
-    batch.set(newDocRef, newUserData, { merge: true });
-
-    const oldDocRef = context.db.collection('users').doc(firestoreDoc!.id);
-    batch.delete(oldDocRef);
-
-    await batch.commit();
-
-    const updatedDoc = await context.db.collection('users').doc(newAuthUser.uid).get();
     return {
       uid: newAuthUser.uid,
-      email: newAuthUser.email!,
+      email: normalizedEmail,
       user: adaptUser(updatedDoc),
     };
   }
 
-  if (!firestoreDoc && !authUserRecord) {
-    const newAuthUser = await context.auth.createUser({
-      email: args.input.email,
-      password: args.input.password,
-      displayName: args.input.name,
-      emailVerified: false,
+  if (authUserRecord && !firestoreUser) {
+    const now = Timestamp.now();
+
+    await usersRef.doc(authUserRecord.uid).set({
+      id: authUserRecord.uid,
+      email: normalizedEmail,
+      name: authUserRecord.displayName ?? input.name,
+      createdAt: now,
+      updatedAt: now,
     });
 
-    const userData = {
-      id: newAuthUser.uid,
-      email: newAuthUser.email,
-      name: args.input.name,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+    const userDoc = await usersRef.doc(authUserRecord.uid).get();
+
+    return {
+      uid: authUserRecord.uid,
+      email: normalizedEmail,
+      user: adaptUser(userDoc),
     };
+  }
 
-    await context.db.collection('users').doc(newAuthUser.uid).set(userData);
+  if (!firestoreDoc && !authUserRecord) {
+    const now = Timestamp.now();
+    const newAuthUser = await auth.createUser({
+      email: normalizedEmail,
+      password: input.password,
+      displayName: input.name,
+      emailVerified: true,
+    });
 
-    const userDoc = await context.db.collection('users').doc(newAuthUser.uid).get();
+    await usersRef.doc(newAuthUser.uid).set({
+      id: newAuthUser.uid,
+      email: normalizedEmail,
+      name: input.name,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    const userDoc = await usersRef.doc(newAuthUser.uid).get();
 
     return {
       uid: newAuthUser.uid,
-      email: newAuthUser.email!,
+      email: normalizedEmail,
       user: adaptUser(userDoc),
     };
   }
