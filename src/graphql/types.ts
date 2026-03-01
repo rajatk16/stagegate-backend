@@ -1,6 +1,5 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import {
-  UserModel,
   OrganizationModel,
   OrganizationMemberModel,
   EventModel,
@@ -592,9 +591,7 @@ export type DirectiveResolverFn<
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
-  AuthPayload: ResolverTypeWrapper<
-    Omit<AuthPayload, 'user'> & { user: ResolversTypes['User'] }
-  >;
+  AuthPayload: ResolverTypeWrapper<AuthPayload>;
   AuthStatus: ResolverTypeWrapper<AuthStatus>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   BulkCreateProposalsInput: BulkCreateProposalsInput;
@@ -653,12 +650,12 @@ export type ResolversTypes = {
   UpdateEventInput: UpdateEventInput;
   UpdateOrganizationInput: UpdateOrganizationInput;
   UpdateUserInput: UpdateUserInput;
-  User: ResolverTypeWrapper<UserModel>;
+  User: ResolverTypeWrapper<User>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
-  AuthPayload: Omit<AuthPayload, 'user'> & { user: ResolversParentTypes['User'] };
+  AuthPayload: AuthPayload;
   AuthStatus: AuthStatus;
   Boolean: Scalars['Boolean']['output'];
   BulkCreateProposalsInput: BulkCreateProposalsInput;
@@ -707,7 +704,7 @@ export type ResolversParentTypes = {
   UpdateEventInput: UpdateEventInput;
   UpdateOrganizationInput: UpdateOrganizationInput;
   UpdateUserInput: UpdateUserInput;
-  User: UserModel;
+  User: User;
 };
 
 export type AuthPayloadResolvers<
