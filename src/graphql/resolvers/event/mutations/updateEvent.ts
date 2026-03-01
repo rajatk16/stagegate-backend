@@ -8,65 +8,36 @@ import {
   MutationResolvers,
   OrganizationMemberRole,
 } from '../../../types';
-import { adaptEvent } from '../../../../utils';
+import {
+  adaptEvent,
+  notFoundError,
+  forbiddenError,
+  badUserInputError,
+  unauthorizedError,
+  internalServerError,
+} from '../../../../utils';
 
 export const updateEvent: MutationResolvers['updateEvent'] = async (
   _parent,
   { input },
   { authUser, db },
 ) => {
-  if (!authUser) {
-    throw new GraphQLError('Unauthorized', {
-      extensions: {
-        code: 'UNAUTHORIZED',
-        http: {
-          status: 401,
-        },
-      },
-    });
-  }
+  if (!authUser) throw unauthorizedError();
 
   const { eventId, organizationId, ...updates } = input;
 
-  if (Object.keys(updates).length === 0) {
-    throw new GraphQLError('No updates provided', {
-      extensions: {
-        code: 'BAD_USER_INPUT',
-        http: {
-          status: 400,
-        },
-      },
-    });
-  }
+  if (Object.keys(updates).length === 0) throw badUserInputError('No updates provided.');
 
   try {
     const orgRef = db.collection('organizations').doc(organizationId);
     const orgSnap = await orgRef.get();
 
-    if (!orgSnap.exists) {
-      throw new GraphQLError('Organization not found', {
-        extensions: {
-          code: 'NOT_FOUND',
-          http: {
-            status: 404,
-          },
-        },
-      });
-    }
+    if (!orgSnap.exists) throw notFoundError('Organization not found.');
 
     const eventRef = orgRef.collection('events').doc(eventId);
     const eventSnap = await eventRef.get();
 
-    if (!eventSnap.exists) {
-      throw new GraphQLError('Event not found', {
-        extensions: {
-          code: 'NOT_FOUND',
-          http: {
-            status: 404,
-          },
-        },
-      });
-    }
+    if (!eventSnap.exists) throw notFoundError('Event not found.');
 
     const event = eventSnap.data() as EventModel;
 
@@ -75,31 +46,14 @@ export const updateEvent: MutationResolvers['updateEvent'] = async (
       .doc(authUser.uid)
       .get();
 
-    if (!orgMemberSnap.exists) {
-      throw new GraphQLError('You are not a member of this organization', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
-    }
+    if (!orgMemberSnap.exists)
+      throw forbiddenError('You are not a member of this organization');
 
     const orgRole = orgMemberSnap.data()?.role as OrganizationMemberRole;
 
     const eventMemberSnap = await eventRef.collection('eventMembers').doc(authUser.uid).get();
 
-    if (!eventMemberSnap.exists) {
-      throw new GraphQLError('You are not a member of this event', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
-    }
+    if (!eventMemberSnap.exists) throw forbiddenError('You are not a member of this event.');
 
     const eventRole = eventMemberSnap.data()?.role as EventMemberRole;
 
@@ -108,45 +62,20 @@ export const updateEvent: MutationResolvers['updateEvent'] = async (
       orgRole === OrganizationMemberRole.Admin ||
       eventRole === EventMemberRole.Organizer;
 
-    if (!canEditEvent) {
-      throw new GraphQLError('You are not authorized to update this event', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
-    }
+    if (!canEditEvent) throw forbiddenError('You are not authorized to update this event.');
 
     const start = updates.startDate ? new Date(updates.startDate) : event.startDate?.toDate();
 
     const end = updates.endDate ? new Date(updates.endDate) : event.endDate?.toDate();
 
-    if (start && end && start > end) {
-      throw new GraphQLError('Start date must be before end date', {
-        extensions: {
-          code: 'BAD_USER_INPUT',
-          http: {
-            status: 400,
-          },
-        },
-      });
-    }
+    if (start && end && start > end)
+      throw badUserInputError('Start date must be before end date.');
 
     if (event.status === EventStatus.Published && updates.startDate) {
       const oldStart = event.startDate?.toDate();
       if (start && oldStart && start < oldStart) {
-        throw new GraphQLError(
-          'Start date cannot be moved to a past date for a published event',
-          {
-            extensions: {
-              code: 'BAD_USER_INPUT',
-              http: {
-                status: 400,
-              },
-            },
-          },
+        throw badUserInputError(
+          'Start date cannot be moved to a past date for a published event.',
         );
       }
     }
@@ -160,19 +89,10 @@ export const updateEvent: MutationResolvers['updateEvent'] = async (
 
       const allowed = transitions[event.status as EventStatus] ?? [];
 
-      if (!allowed.includes(updates.status)) {
-        throw new GraphQLError(
-          `Invalid status transition from ${event.status} to ${updates.status}`,
-          {
-            extensions: {
-              code: 'BAD_USER_INPUT',
-              http: {
-                status: 400,
-              },
-            },
-          },
+      if (!allowed.includes(updates.status))
+        throw badUserInputError(
+          `Invalid status transition from ${event.status} to ${updates.status}.`,
         );
-      }
     }
 
     const patch: Record<string, unknown> = {
@@ -202,13 +122,6 @@ export const updateEvent: MutationResolvers['updateEvent'] = async (
       throw error;
     }
 
-    throw new GraphQLError('Internal server error', {
-      extensions: {
-        code: 'INTERNAL_SERVER_ERROR',
-        http: {
-          status: 500,
-        },
-      },
-    });
+    throw internalServerError();
   }
 };

@@ -2,13 +2,20 @@ import { GraphQLError } from 'graphql';
 import { Timestamp } from 'firebase-admin/firestore';
 
 import {
+  ProposalInput,
+  ProposalStatus,
   EventMemberRole,
   MutationResolvers,
   OrganizationMember,
   OrganizationMemberRole,
-  ProposalInput,
-  ProposalStatus,
 } from '../../../types';
+import {
+  notFoundError,
+  forbiddenError,
+  badUserInputError,
+  unauthorizedError,
+  internalServerError,
+} from '../../../../utils';
 
 const MAX_BATCH_SIZE = 100;
 
@@ -17,88 +24,37 @@ export const bulkCreateProposals: MutationResolvers['bulkCreateProposals'] = asy
   { input },
   { db, authUser },
 ) => {
-  if (!authUser) {
-    throw new GraphQLError('Unauthorized', {
-      extensions: {
-        code: 'UNAUTHORIZED',
-        http: {
-          status: 401,
-        },
-      },
-    });
-  }
+  if (!authUser) throw unauthorizedError();
 
   const { eventId, format, organizationId, proposals } = input;
 
-  if (!proposals.length || proposals.length === 0) {
-    throw new GraphQLError('No proposals provided', {
-      extensions: {
-        code: 'BAD_USER_INPUT',
-        http: {
-          status: 400,
-        },
-      },
-    });
-  }
+  if (!proposals.length || proposals.length === 0)
+    throw badUserInputError('No proposals provided.');
 
   try {
     const orgRef = db.collection('organizations').doc(organizationId);
     const orgSnap = await orgRef.get();
 
-    if (!orgSnap.exists) {
-      throw new GraphQLError('Organization not found', {
-        extensions: {
-          code: 'NOT_FOUND',
-          http: {
-            status: 404,
-          },
-        },
-      });
-    }
+    if (!orgSnap.exists) throw notFoundError('Organization not found.');
 
     const orgMemberSnap = await orgRef
       .collection('organizationMembers')
       .doc(authUser.uid)
       .get();
 
-    if (!orgMemberSnap.exists) {
-      throw new GraphQLError('You are not a member of this organization', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
-    }
+    if (!orgMemberSnap.exists)
+      throw forbiddenError('You are not a member of this organization.');
 
     const orgMember = orgMemberSnap.data() as OrganizationMember;
     const orgRole = orgMember.role as OrganizationMemberRole;
 
-    if (orgRole !== OrganizationMemberRole.Owner) {
-      throw new GraphQLError('Only organization owners can bulk upload proposals', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
-    }
+    if (orgRole !== OrganizationMemberRole.Owner)
+      throw forbiddenError('Only organization owners can bulk upload proposals.');
 
     const eventRef = orgRef.collection('events').doc(eventId);
     const eventSnap = await eventRef.get();
 
-    if (!eventSnap.exists) {
-      throw new GraphQLError('Event not found', {
-        extensions: {
-          code: 'NOT_FOUND',
-          http: {
-            status: 404,
-          },
-        },
-      });
-    }
+    if (!eventSnap.exists) throw notFoundError('Event not found.');
 
     const grouped = groupBySpeaker(proposals);
 
@@ -237,14 +193,7 @@ export const bulkCreateProposals: MutationResolvers['bulkCreateProposals'] = asy
       throw error;
     }
 
-    throw new GraphQLError('Internal server error', {
-      extensions: {
-        code: 'INTERNAL_SERVER_ERROR',
-        http: {
-          status: 500,
-        },
-      },
-    });
+    throw internalServerError();
   }
 };
 

@@ -1,15 +1,17 @@
 import { GraphQLError } from 'graphql';
 
-import { EventResolvers } from '../../../types';
+import { ProposalResolvers } from '../../../types';
 import { adaptOrganization, internalServerError, notFoundError } from '../../../../utils';
 
-export const organization: EventResolvers['organization'] = async (parent, _args, { db }) => {
+export const organization: ProposalResolvers['organization'] = async (
+  parent,
+  _args,
+  { db },
+) => {
   try {
     const snap = await db.collection('organizations').doc(parent.organizationId).get();
 
-    if (!snap.exists) {
-      throw notFoundError('Organization not found');
-    }
+    if (!snap.exists) throw notFoundError('Organization not found.');
 
     return adaptOrganization(snap);
   } catch (error) {

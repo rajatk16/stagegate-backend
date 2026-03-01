@@ -2,10 +2,10 @@ import { Resolvers } from '../../types';
 
 import { role, user, organization } from './fieldResolvers';
 import {
-  changeOrgMemberRole,
-  joinOrganization,
   removeOrgMember,
+  joinOrganization,
   leaveOrganization,
+  changeOrgMemberRole,
 } from './mutation';
 
 export const resolvers: Resolvers = {

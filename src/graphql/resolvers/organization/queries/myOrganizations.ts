@@ -1,23 +1,14 @@
 import { GraphQLError } from 'graphql';
 
 import { QueryResolvers } from '../../../types';
-import { adaptOrganization } from '../../../../utils';
+import { adaptOrganization, internalServerError, unauthorizedError } from '../../../../utils';
 
 export const myOrganizations: QueryResolvers['myOrganizations'] = async (
   _parent,
   _args,
   context,
 ) => {
-  if (!context.authUser) {
-    throw new GraphQLError('Unauthorized', {
-      extensions: {
-        code: 'UNAUTHORIZED',
-        http: {
-          status: 401,
-        },
-      },
-    });
-  }
+  if (!context.authUser) throw unauthorizedError();
 
   try {
     const userId = context.authUser.uid;
@@ -48,13 +39,6 @@ export const myOrganizations: QueryResolvers['myOrganizations'] = async (
       throw error;
     }
 
-    throw new GraphQLError('Internal server error', {
-      extensions: {
-        code: 'INTERNAL_SERVER_ERROR',
-        http: {
-          status: 500,
-        },
-      },
-    });
+    throw internalServerError();
   }
 };

@@ -1,37 +1,24 @@
 import { GraphQLError } from 'graphql';
 
 import { QueryResolvers } from '../../../types';
-import { adaptEvent } from '../../../../utils';
+import {
+  adaptEvent,
+  notFoundError,
+  unauthorizedError,
+  internalServerError,
+} from '../../../../utils';
 
 export const organizationEvents: QueryResolvers['organizationEvents'] = async (
   _parent,
   { organizationId },
   { db, authUser },
 ) => {
-  if (!authUser) {
-    throw new GraphQLError('Unauthorized', {
-      extensions: {
-        code: 'UNAUTHORIZED',
-        http: {
-          status: 401,
-        },
-      },
-    });
-  }
+  if (!authUser) throw unauthorizedError();
 
   try {
     const orgSnap = await db.collection('organizations').doc(organizationId).get();
 
-    if (!orgSnap.exists) {
-      throw new GraphQLError('Organization not found', {
-        extensions: {
-          code: 'NOT_FOUND',
-          http: {
-            status: 404,
-          },
-        },
-      });
-    }
+    if (!orgSnap.exists) throw notFoundError('Organization not found.');
 
     const orgRef = orgSnap.ref;
 
@@ -55,13 +42,6 @@ export const organizationEvents: QueryResolvers['organizationEvents'] = async (
       throw error;
     }
 
-    throw new GraphQLError('Internal server error', {
-      extensions: {
-        code: 'INTERNAL_SERVER_ERROR',
-        http: {
-          status: 500,
-        },
-      },
-    });
+    throw internalServerError();
   }
 };

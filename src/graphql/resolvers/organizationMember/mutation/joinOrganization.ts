@@ -2,6 +2,13 @@ import { GraphQLError } from 'graphql';
 import { Timestamp } from 'firebase-admin/firestore';
 
 import { MutationResolvers, OrganizationMemberRole } from '../../../types';
+import {
+  notFoundError,
+  forbiddenError,
+  badUserInputError,
+  unauthorizedError,
+  internalServerError,
+} from '../../../../utils';
 
 export const joinOrganization: MutationResolvers['joinOrganization'] = async (
   _parent,
@@ -11,16 +18,7 @@ export const joinOrganization: MutationResolvers['joinOrganization'] = async (
   const { organizationId } = args.input;
   const { authUser, db } = context;
 
-  if (!authUser) {
-    throw new GraphQLError('Unauthorized', {
-      extensions: {
-        code: 'UNAUTHORIZED',
-        http: {
-          status: 401,
-        },
-      },
-    });
-  }
+  if (!authUser) throw unauthorizedError();
 
   try {
     const { uid } = authUser;
@@ -28,43 +26,18 @@ export const joinOrganization: MutationResolvers['joinOrganization'] = async (
     const orgRef = db.collection('organizations').doc(organizationId);
     const orgSnap = await orgRef.get();
 
-    if (!orgSnap.exists) {
-      throw new GraphQLError('Organization not found', {
-        extensions: {
-          code: 'NOT_FOUND',
-          http: {
-            status: 404,
-          },
-        },
-      });
-    }
+    if (!orgSnap.exists) throw notFoundError('Organization not found.');
 
     const orgData = orgSnap.data();
 
-    if (!orgData?.isPublic) {
-      throw new GraphQLError('Organization is not public', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
-    }
+    if (!orgData?.isPublic) throw forbiddenError('Organization is not public.');
 
     const memberRef = orgRef.collection('organizationMembers').doc(uid);
     const memberSnap = await memberRef.get();
 
-    if (memberSnap.exists) {
-      throw new GraphQLError('You are already a member of this organization', {
-        extensions: {
-          code: 'BAD_USER_INPUT',
-          http: {
-            status: 400,
-          },
-        },
-      });
-    }
+    if (memberSnap.exists)
+      throw badUserInputError('You are already a member of this organization.');
+
     const now = Timestamp.now();
 
     await memberRef.set({
@@ -87,13 +60,6 @@ export const joinOrganization: MutationResolvers['joinOrganization'] = async (
       throw error;
     }
 
-    throw new GraphQLError('Internal server error', {
-      extensions: {
-        code: 'INTERNAL_SERVER_ERROR',
-        http: {
-          status: 500,
-        },
-      },
-    });
+    throw internalServerError();
   }
 };

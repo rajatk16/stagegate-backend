@@ -1,22 +1,20 @@
 import { GraphQLError } from 'graphql';
 
 import { QueryResolvers } from '../../../types';
-import { adaptEvent, adaptOrganization } from '../../../../utils';
+import {
+  adaptEvent,
+  notFoundError,
+  forbiddenError,
+  adaptOrganization,
+  unauthorizedError,
+  internalServerError,
+} from '../../../../utils';
 
 export const eventBySlug: QueryResolvers['eventBySlug'] = async (_parent, args, context) => {
   const { authUser, db } = context;
   const { organizationSlug, eventSlug } = args;
 
-  if (!authUser) {
-    throw new GraphQLError('Unauthorized', {
-      extensions: {
-        code: 'UNAUTHORIZED',
-        http: {
-          status: 401,
-        },
-      },
-    });
-  }
+  if (!authUser) throw unauthorizedError();
 
   try {
     const orgSnap = await db
@@ -25,16 +23,7 @@ export const eventBySlug: QueryResolvers['eventBySlug'] = async (_parent, args, 
       .limit(1)
       .get();
 
-    if (orgSnap.empty) {
-      throw new GraphQLError('Organization not found', {
-        extensions: {
-          code: 'NOT_FOUND',
-          http: {
-            status: 404,
-          },
-        },
-      });
-    }
+    if (orgSnap.empty) throw notFoundError('Organization not found.');
 
     const orgDoc = orgSnap.docs[0];
     const organization = adaptOrganization(orgDoc);
@@ -48,14 +37,7 @@ export const eventBySlug: QueryResolvers['eventBySlug'] = async (_parent, args, 
       .get();
 
     if (memberSnap.empty) {
-      throw new GraphQLError('You are not a member of this organization', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
+      throw forbiddenError('You are not a member of this organization.');
     }
 
     const eventSnap = await db
@@ -67,14 +49,7 @@ export const eventBySlug: QueryResolvers['eventBySlug'] = async (_parent, args, 
       .get();
 
     if (eventSnap.empty) {
-      throw new GraphQLError('Event not found', {
-        extensions: {
-          code: 'NOT_FOUND',
-          http: {
-            status: 404,
-          },
-        },
-      });
+      throw notFoundError('Event not found.');
     }
 
     const eventDoc = eventSnap.docs[0];
@@ -88,13 +63,6 @@ export const eventBySlug: QueryResolvers['eventBySlug'] = async (_parent, args, 
       throw error;
     }
 
-    throw new GraphQLError('Internal server error', {
-      extensions: {
-        code: 'INTERNAL_SERVER_ERROR',
-        http: {
-          status: 500,
-        },
-      },
-    });
+    throw internalServerError();
   }
 };

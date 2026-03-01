@@ -1,3 +1,4 @@
+export * from './errors';
 export * from './adaptUser';
 export * from './adaptEvent';
 export * from './chunkArray';

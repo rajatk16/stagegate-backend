@@ -362,7 +362,7 @@ export const typeDefs = gql`
     # The time when the proposal was submitted
     submittedAt: DateTime
     # The role of the current user in the proposal
-    viewerRole: ProposalViewerRole
+    viewerRoles: [ProposalViewerRole!]
   }
 
   # Represents the status of a proposal.

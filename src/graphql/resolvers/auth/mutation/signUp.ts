@@ -1,8 +1,7 @@
-import { GraphQLError } from 'graphql';
-
-import { adaptUser } from '../../../../utils';
-import { MutationResolvers } from '../../../types';
 import { Timestamp } from 'firebase-admin/firestore';
+
+import { MutationResolvers } from '../../../types';
+import { adaptUser, badUserInputError, internalServerError } from '../../../../utils';
 
 export const signUp: MutationResolvers['signUp'] = async (_parent, { input }, { db, auth }) => {
   const normalizedEmail = input.email.trim().toLowerCase();
@@ -19,28 +18,10 @@ export const signUp: MutationResolvers['signUp'] = async (_parent, { input }, { 
   try {
     authUserRecord = await auth.getUserByEmail(normalizedEmail);
   } catch (error) {
-    if (error.code !== 'auth/user-not-found') {
-      throw new GraphQLError(error.message, {
-        extensions: {
-          code: 'INTERNAL_SERVER_ERROR',
-          http: {
-            status: 500,
-          },
-        },
-      });
-    }
+    if (error.code !== 'auth/user-not-found') throw internalServerError(error.message);
   }
 
-  if (authUserRecord && firestoreUser) {
-    throw new GraphQLError('User already exists', {
-      extensions: {
-        code: 'BAD_USER_INPUT',
-        http: {
-          status: 400,
-        },
-      },
-    });
-  }
+  if (authUserRecord && firestoreUser) throw badUserInputError('User already exists');
 
   if (firestoreUser && !authUserRecord) {
     const externalId = firestoreUser.id;
@@ -115,12 +96,5 @@ export const signUp: MutationResolvers['signUp'] = async (_parent, { input }, { 
     };
   }
 
-  throw new GraphQLError('Internal server error', {
-    extensions: {
-      code: 'INTERNAL_SERVER_ERROR',
-      http: {
-        status: 500,
-      },
-    },
-  });
+  throw internalServerError('An unexpected error occurred');
 };

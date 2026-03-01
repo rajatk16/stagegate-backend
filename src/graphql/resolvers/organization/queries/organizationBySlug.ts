@@ -1,7 +1,13 @@
 import { GraphQLError } from 'graphql';
 
 import { QueryResolvers } from '../../../types';
-import { adaptOrganization } from '../../../../utils';
+import {
+  adaptOrganization,
+  forbiddenError,
+  internalServerError,
+  notFoundError,
+  unauthorizedError,
+} from '../../../../utils';
 
 export const organizationBySlug: QueryResolvers['organizationBySlug'] = async (
   _parent,
@@ -11,16 +17,7 @@ export const organizationBySlug: QueryResolvers['organizationBySlug'] = async (
   const { authUser, db } = context;
   const { slug } = args;
 
-  if (!authUser) {
-    throw new GraphQLError('Unauthorized', {
-      extensions: {
-        code: 'UNAUTHORIZED',
-        http: {
-          status: 401,
-        },
-      },
-    });
-  }
+  if (!authUser) throw unauthorizedError();
 
   try {
     const snapshot = await db
@@ -29,16 +26,7 @@ export const organizationBySlug: QueryResolvers['organizationBySlug'] = async (
       .limit(1)
       .get();
 
-    if (snapshot.empty) {
-      throw new GraphQLError('Organization not found', {
-        extensions: {
-          code: 'NOT_FOUND',
-          http: {
-            status: 404,
-          },
-        },
-      });
-    }
+    if (snapshot.empty) throw notFoundError('Organization not found.');
 
     const doc = snapshot.docs[0];
 
@@ -50,16 +38,8 @@ export const organizationBySlug: QueryResolvers['organizationBySlug'] = async (
       .doc(authUser.uid)
       .get();
 
-    if (!membershipDoc.exists) {
-      throw new GraphQLError('You are not a member of this organization', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
-    }
+    if (!membershipDoc.exists)
+      throw forbiddenError('You are not a member of this organization.');
 
     return adaptOrganization(doc);
   } catch (error) {
@@ -69,13 +49,6 @@ export const organizationBySlug: QueryResolvers['organizationBySlug'] = async (
       throw error;
     }
 
-    throw new GraphQLError('Internal server error', {
-      extensions: {
-        code: 'INTERNAL_SERVER_ERROR',
-        http: {
-          status: 500,
-        },
-      },
-    });
+    throw internalServerError();
   }
 };

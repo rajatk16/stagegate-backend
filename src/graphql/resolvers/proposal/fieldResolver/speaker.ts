@@ -1,11 +1,10 @@
+import { adaptUser, internalServerError, notFoundError } from '../../../../utils';
+import { ProposalResolvers } from '../../../types';
 import { GraphQLError } from 'graphql';
 
-import { EventMemberResolvers } from '../../../types';
-import { adaptUser, internalServerError, notFoundError } from '../../../../utils';
-
-export const user: EventMemberResolvers['user'] = async (parent, _args, context) => {
+export const speaker: ProposalResolvers['speaker'] = async (parent, _args, { db }) => {
   try {
-    const snap = await context.db.collection('users').doc(parent.userId).get();
+    const snap = await db.collection('users').doc(parent.speakerId).get();
 
     if (!snap.exists) throw notFoundError('User not found.');
 

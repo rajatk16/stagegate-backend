@@ -352,7 +352,7 @@ export type Proposal = {
   submittedAt?: Maybe<Scalars['DateTime']['output']>;
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
-  viewerRole?: Maybe<ProposalViewerRole>;
+  viewerRoles?: Maybe<Array<ProposalViewerRole>>;
 };
 
 export enum ProposalFormat {
@@ -995,7 +995,11 @@ export type ProposalResolvers<
   submittedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
-  viewerRole?: Resolver<Maybe<ResolversTypes['ProposalViewerRole']>, ParentType, ContextType>;
+  viewerRoles?: Resolver<
+    Maybe<Array<ResolversTypes['ProposalViewerRole']>>,
+    ParentType,
+    ContextType
+  >;
 };
 
 export type QueryResolvers<
