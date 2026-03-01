@@ -2,24 +2,20 @@ import { GraphQLError } from 'graphql';
 import { Timestamp } from 'firebase-admin/firestore';
 
 import { OrganizationModel } from '../../../models';
-import { generateUniqueSlug } from '../../../../utils';
 import { MutationResolvers, OrganizationMemberRole } from '../../../types';
+import {
+  badUserInputError,
+  unauthorizedError,
+  generateUniqueSlug,
+  internalServerError,
+} from '../../../../utils';
 
 export const createOrganization: MutationResolvers['createOrganization'] = async (
   _,
   args,
   context,
 ) => {
-  if (!context.authUser) {
-    throw new GraphQLError('Unauthorized', {
-      extensions: {
-        code: 'UNAUTHORIZED',
-        http: {
-          status: 401,
-        },
-      },
-    });
-  }
+  if (!context.authUser) throw unauthorizedError();
 
   try {
     const existingOrganizationSnap = await context.db
@@ -28,19 +24,10 @@ export const createOrganization: MutationResolvers['createOrganization'] = async
       .limit(1)
       .get();
 
-    if (!existingOrganizationSnap.empty) {
-      throw new GraphQLError(
+    if (!existingOrganizationSnap.empty)
+      throw badUserInputError(
         'You already own an organization. Only one organization ownership per user is allowed.',
-        {
-          extensions: {
-            code: 'BAD_USER_INPUT',
-            http: {
-              status: 400,
-            },
-          },
-        },
       );
-    }
 
     const nameCheckSnap = await context.db
       .collection('organizations')
@@ -48,16 +35,8 @@ export const createOrganization: MutationResolvers['createOrganization'] = async
       .limit(1)
       .get();
 
-    if (!nameCheckSnap.empty) {
-      throw new GraphQLError('An organization with this name already exists.', {
-        extensions: {
-          code: 'BAD_USER_INPUT',
-          http: {
-            status: 400,
-          },
-        },
-      });
-    }
+    if (!nameCheckSnap.empty)
+      throw badUserInputError('An organization with this name already exists.');
 
     const slug = generateUniqueSlug(args.input.name.trim());
 
@@ -67,16 +46,8 @@ export const createOrganization: MutationResolvers['createOrganization'] = async
       .limit(1)
       .get();
 
-    if (!slugCheckSnap.empty) {
-      throw new GraphQLError('An organization with this slug already exists.', {
-        extensions: {
-          code: 'BAD_USER_INPUT',
-          http: {
-            status: 400,
-          },
-        },
-      });
-    }
+    if (!slugCheckSnap.empty)
+      throw badUserInputError('An organization with this slug already exists.');
 
     const orgRef = context.db.collection('organizations').doc();
     const orgId = orgRef.id;
@@ -112,13 +83,6 @@ export const createOrganization: MutationResolvers['createOrganization'] = async
       throw error;
     }
 
-    throw new GraphQLError('Internal server error', {
-      extensions: {
-        code: 'INTERNAL_SERVER_ERROR',
-        http: {
-          status: 500,
-        },
-      },
-    });
+    throw internalServerError();
   }
 };

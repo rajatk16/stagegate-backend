@@ -1,6 +1,12 @@
 import { GraphQLError } from 'graphql';
 
 import { MutationResolvers, OrganizationMemberRole } from '../../../types';
+import {
+  notFoundError,
+  forbiddenError,
+  unauthorizedError,
+  internalServerError,
+} from '../../../../utils';
 
 export const removeOrgMember: MutationResolvers['removeOrgMember'] = async (
   _parent,
@@ -9,42 +15,16 @@ export const removeOrgMember: MutationResolvers['removeOrgMember'] = async (
 ) => {
   const { organizationId, userId } = input;
 
-  if (!authUser) {
-    throw new GraphQLError('Unauthorized', {
-      extensions: {
-        code: 'UNAUTHORIZED',
-        http: {
-          status: 401,
-        },
-      },
-    });
-  }
+  if (!authUser) throw unauthorizedError();
 
-  if (authUser.uid === userId) {
-    throw new GraphQLError('You cannot remove yourself from the organization', {
-      extensions: {
-        code: 'FORBIDDEN',
-        http: {
-          status: 403,
-        },
-      },
-    });
-  }
+  if (authUser.uid === userId)
+    throw forbiddenError('You cannot remove yourself from the organization');
 
   try {
     const orgRef = db.collection('organizations').doc(organizationId);
     const orgSnap = await orgRef.get();
 
-    if (!orgSnap.exists) {
-      throw new GraphQLError('Organization not found.', {
-        extensions: {
-          code: 'NOT_FOUND',
-          http: {
-            status: 404,
-          },
-        },
-      });
-    }
+    if (!orgSnap.exists) throw notFoundError('Organization not found.');
 
     const membersRef = orgRef.collection('organizationMembers');
 
@@ -53,27 +33,9 @@ export const removeOrgMember: MutationResolvers['removeOrgMember'] = async (
       membersRef.where('userId', '==', userId).limit(1).get(),
     ]);
 
-    if (callerSnap.empty) {
-      throw new GraphQLError('You are not a member of this organization', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
-    }
+    if (callerSnap.empty) throw forbiddenError('You are not a member of this organization');
 
-    if (targetSnap.empty) {
-      throw new GraphQLError('User is not a member of this organization', {
-        extensions: {
-          code: 'NOT_FOUND',
-          http: {
-            status: 404,
-          },
-        },
-      });
-    }
+    if (targetSnap.empty) throw notFoundError('User is not a member of this organization');
 
     const callerRole = callerSnap.docs[0].data()?.role as OrganizationMemberRole;
     const targetRole = targetSnap.docs[0].data()?.role as OrganizationMemberRole;
@@ -81,55 +43,23 @@ export const removeOrgMember: MutationResolvers['removeOrgMember'] = async (
     if (
       callerRole !== OrganizationMemberRole.Owner &&
       targetRole !== OrganizationMemberRole.Admin
-    ) {
-      throw new GraphQLError('Insufficient permissions', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
-    }
+    )
+      throw forbiddenError('Insufficient permissions');
 
     if (
       callerRole === OrganizationMemberRole.Admin &&
       targetRole === OrganizationMemberRole.Owner
-    ) {
-      throw new GraphQLError('Admin users cannot remove the owner of the organization', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
-    }
+    )
+      throw forbiddenError('Admin users cannot remove the owner of the organization.');
 
     if (
       callerRole === OrganizationMemberRole.Admin &&
       targetRole === OrganizationMemberRole.Admin
-    ) {
-      throw new GraphQLError('Admin users cannot remove another admin from the organization', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
-    }
+    )
+      throw forbiddenError('Admin users cannot remove another admin from the organization.');
 
-    if (targetRole === OrganizationMemberRole.Owner) {
-      throw new GraphQLError('Owner cannot be removed from the organization', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
-    }
+    if (targetRole === OrganizationMemberRole.Owner)
+      throw forbiddenError('Owner cannot be removed from the organization');
 
     await targetSnap.docs[0].ref.delete();
 
@@ -143,13 +73,6 @@ export const removeOrgMember: MutationResolvers['removeOrgMember'] = async (
       throw error;
     }
 
-    throw new GraphQLError('Internal server error', {
-      extensions: {
-        code: 'INTERNAL_SERVER_ERROR',
-        http: {
-          status: 500,
-        },
-      },
-    });
+    throw internalServerError();
   }
 };

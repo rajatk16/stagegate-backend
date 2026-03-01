@@ -6,8 +6,8 @@ import { myOrganizations, organizationBySlug, searchOrganizations } from './quer
 export const resolvers: Resolvers = {
   Query: {
     myOrganizations,
-    searchOrganizations,
     organizationBySlug,
+    searchOrganizations,
   },
   Mutation: {
     createOrganization,
@@ -16,8 +16,8 @@ export const resolvers: Resolvers = {
   Organization: {
     owner,
     members,
-    viewerRole,
     createdAt,
     updatedAt,
+    viewerRole,
   },
 };

@@ -26,11 +26,11 @@ export const members: EventResolvers['members'] = async (parent, args, { db }) =
     const data = doc.data();
 
     return {
-      userId: data.userId,
       role: data.role,
+      orgId: data.orgId,
+      userId: data.userId,
       eventId: data.eventId,
       joinedAt: data.joinedAt,
-      orgId: data.orgId,
     };
   });
 

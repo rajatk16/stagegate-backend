@@ -1,6 +1,13 @@
 import { GraphQLError } from 'graphql';
 
 import { MutationResolvers, OrganizationMemberRole } from '../../../types';
+import {
+  notFoundError,
+  forbiddenError,
+  badUserInputError,
+  unauthorizedError,
+  internalServerError,
+} from '../../../../utils';
 
 export const changeOrgMemberRole: MutationResolvers['changeOrgMemberRole'] = async (
   _parent,
@@ -9,42 +16,15 @@ export const changeOrgMemberRole: MutationResolvers['changeOrgMemberRole'] = asy
 ) => {
   const { organizationId, userId, role: newRole } = input;
 
-  if (!authUser) {
-    throw new GraphQLError('Unauthorized', {
-      extensions: {
-        code: 'UNAUTHORIZED',
-        http: {
-          status: 401,
-        },
-      },
-    });
-  }
+  if (!authUser) throw unauthorizedError();
 
-  if (authUser.uid === userId) {
-    throw new GraphQLError('You cannot change your own role', {
-      extensions: {
-        code: 'BAD_USER_INPUT',
-        http: {
-          status: 400,
-        },
-      },
-    });
-  }
+  if (authUser.uid === userId) throw badUserInputError('You cannot change your own role.');
 
   try {
     const orgRef = db.collection('organizations').doc(organizationId);
     const orgSnap = await orgRef.get();
 
-    if (!orgSnap.exists) {
-      throw new GraphQLError('Organization not found', {
-        extensions: {
-          code: 'NOT_FOUND',
-          http: {
-            status: 404,
-          },
-        },
-      });
-    }
+    if (!orgSnap.exists) throw notFoundError('Organization not found.');
 
     const requesterRef = orgRef.collection('organizationMembers').doc(authUser.uid);
     const targetRef = orgRef.collection('organizationMembers').doc(userId);
@@ -54,27 +34,10 @@ export const changeOrgMemberRole: MutationResolvers['changeOrgMemberRole'] = asy
       targetRef.get(),
     ]);
 
-    if (!requesterSnap.exists) {
-      throw new GraphQLError('You are not a member of this organization', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
-    }
+    if (!requesterSnap.exists)
+      throw forbiddenError('You are not a member of this organization.');
 
-    if (!targetSnap.exists) {
-      throw new GraphQLError('User is not a member of this organization', {
-        extensions: {
-          code: 'NOT_FOUND',
-          http: {
-            status: 404,
-          },
-        },
-      });
-    }
+    if (!targetSnap.exists) throw notFoundError('User is not a member of this organization.');
 
     const requesterRole = requesterSnap.data()?.role as OrganizationMemberRole;
     const targetRole = targetSnap.data()?.role as OrganizationMemberRole;
@@ -82,66 +45,26 @@ export const changeOrgMemberRole: MutationResolvers['changeOrgMemberRole'] = asy
     if (
       requesterRole !== OrganizationMemberRole.Owner &&
       targetRole !== OrganizationMemberRole.Admin
-    ) {
-      throw new GraphQLError('Insufficient permissions', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
-    }
+    )
+      throw forbiddenError('Insufficient permissions.');
 
-    if (targetRole === newRole) {
-      throw new GraphQLError(`The user already has the role ${newRole}`, {
-        extensions: {
-          code: 'BAD_USER_INPUT',
-          http: {
-            status: 400,
-          },
-        },
-      });
-    }
+    if (targetRole === newRole)
+      throw badUserInputError(`The user already has the role ${newRole}.`);
 
-    if (newRole === OrganizationMemberRole.Owner) {
-      throw new GraphQLError('OWNER role cannot be assigned to another user', {
-        extensions: {
-          code: 'BAD_USER_INPUT',
-          http: {
-            status: 400,
-          },
-        },
-      });
-    }
+    if (newRole === OrganizationMemberRole.Owner)
+      throw badUserInputError('OWNER role cannot be assigned to another user.');
 
     if (
       requesterRole === OrganizationMemberRole.Admin &&
       targetRole === OrganizationMemberRole.Owner
-    ) {
-      throw new GraphQLError('Admin users cannot change the role of an owner', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
-    }
+    )
+      throw forbiddenError('Admin users cannot change the role of an owner.');
 
     if (
       requesterRole === OrganizationMemberRole.Admin &&
       targetRole === OrganizationMemberRole.Admin
-    ) {
-      throw new GraphQLError('Admin users cannot change the role of another admin', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
-    }
+    )
+      throw forbiddenError('Admin users cannot change the role of another admin.');
 
     await targetRef.update({
       role: newRole,
@@ -160,13 +83,6 @@ export const changeOrgMemberRole: MutationResolvers['changeOrgMemberRole'] = asy
       throw error;
     }
 
-    throw new GraphQLError('Internal server error', {
-      extensions: {
-        code: 'INTERNAL_SERVER_ERROR',
-        http: {
-          status: 500,
-        },
-      },
-    });
+    throw internalServerError();
   }
 };

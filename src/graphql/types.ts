@@ -1,5 +1,6 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import {
+  UserModel,
   OrganizationModel,
   OrganizationMemberModel,
   EventModel,
@@ -352,7 +353,7 @@ export type Proposal = {
   submittedAt?: Maybe<Scalars['DateTime']['output']>;
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
-  viewerRole?: Maybe<ProposalViewerRole>;
+  viewerRoles?: Maybe<Array<ProposalViewerRole>>;
 };
 
 export enum ProposalFormat {
@@ -591,7 +592,9 @@ export type DirectiveResolverFn<
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
-  AuthPayload: ResolverTypeWrapper<AuthPayload>;
+  AuthPayload: ResolverTypeWrapper<
+    Omit<AuthPayload, 'user'> & { user: ResolversTypes['User'] }
+  >;
   AuthStatus: ResolverTypeWrapper<AuthStatus>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   BulkCreateProposalsInput: BulkCreateProposalsInput;
@@ -650,12 +653,12 @@ export type ResolversTypes = {
   UpdateEventInput: UpdateEventInput;
   UpdateOrganizationInput: UpdateOrganizationInput;
   UpdateUserInput: UpdateUserInput;
-  User: ResolverTypeWrapper<User>;
+  User: ResolverTypeWrapper<UserModel>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
-  AuthPayload: AuthPayload;
+  AuthPayload: Omit<AuthPayload, 'user'> & { user: ResolversParentTypes['User'] };
   AuthStatus: AuthStatus;
   Boolean: Scalars['Boolean']['output'];
   BulkCreateProposalsInput: BulkCreateProposalsInput;
@@ -704,7 +707,7 @@ export type ResolversParentTypes = {
   UpdateEventInput: UpdateEventInput;
   UpdateOrganizationInput: UpdateOrganizationInput;
   UpdateUserInput: UpdateUserInput;
-  User: User;
+  User: UserModel;
 };
 
 export type AuthPayloadResolvers<
@@ -995,7 +998,11 @@ export type ProposalResolvers<
   submittedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
-  viewerRole?: Resolver<Maybe<ResolversTypes['ProposalViewerRole']>, ParentType, ContextType>;
+  viewerRoles?: Resolver<
+    Maybe<Array<ResolversTypes['ProposalViewerRole']>>,
+    ParentType,
+    ContextType
+  >;
 };
 
 export type QueryResolvers<

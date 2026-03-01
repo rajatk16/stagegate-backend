@@ -1,23 +1,14 @@
 import { GraphQLError } from 'graphql';
 
 import { QueryResolvers } from '../../../types';
-import { adaptOrganization } from '../../../../utils';
+import { adaptOrganization, internalServerError, unauthorizedError } from '../../../../utils';
 
 export const searchOrganizations: QueryResolvers['searchOrganizations'] = async (
   _parent,
   args,
   context,
 ) => {
-  if (!context.authUser) {
-    throw new GraphQLError('Unauthorized', {
-      extensions: {
-        code: 'UNAUTHORIZED',
-        http: {
-          status: 401,
-        },
-      },
-    });
-  }
+  if (!context.authUser) throw unauthorizedError();
 
   try {
     if (!args.query.trim()) return [];
@@ -63,13 +54,6 @@ export const searchOrganizations: QueryResolvers['searchOrganizations'] = async 
       throw error;
     }
 
-    throw new GraphQLError('Internal server error', {
-      extensions: {
-        code: 'INTERNAL_SERVER_ERROR',
-        http: {
-          status: 500,
-        },
-      },
-    });
+    throw internalServerError();
   }
 };

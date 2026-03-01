@@ -1,7 +1,5 @@
-import { GraphQLError } from 'graphql';
-
-import { adaptOrganization } from '../../../../utils';
 import { OrganizationMemberResolvers } from '../../../types';
+import { adaptOrganization, notFoundError } from '../../../../utils';
 
 export const organization: OrganizationMemberResolvers['organization'] = async (
   parent,
@@ -10,29 +8,11 @@ export const organization: OrganizationMemberResolvers['organization'] = async (
 ) => {
   const snap = await context.db.collection('organizations').doc(parent.orgId).get();
 
-  if (!snap.exists) {
-    throw new GraphQLError('Organization not found', {
-      extensions: {
-        code: 'NOT_FOUND',
-        http: {
-          status: 404,
-        },
-      },
-    });
-  }
+  if (!snap.exists) throw notFoundError('Organization not found.');
 
   const data = snap.data();
 
-  if (!data) {
-    throw new GraphQLError('Organization not found', {
-      extensions: {
-        code: 'NOT_FOUND',
-        http: {
-          status: 404,
-        },
-      },
-    });
-  }
+  if (!data) throw notFoundError('Organization not found.');
 
   return adaptOrganization(snap);
 };

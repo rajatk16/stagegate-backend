@@ -1,5 +1,4 @@
-import { GraphQLError } from 'graphql';
-
+import { internalServerError } from 'src/utils';
 import { OrganizationMemberRole, OrganizationResolvers } from '../../../types';
 
 export const viewerRole: OrganizationResolvers['viewerRole'] = async (
@@ -29,13 +28,6 @@ export const viewerRole: OrganizationResolvers['viewerRole'] = async (
     return member.role as OrganizationMemberRole;
   } catch (error) {
     console.error(error);
-    throw new GraphQLError('Internal server error', {
-      extensions: {
-        code: 'INTERNAL_SERVER_ERROR',
-        http: {
-          status: 500,
-        },
-      },
-    });
+    throw internalServerError();
   }
 };

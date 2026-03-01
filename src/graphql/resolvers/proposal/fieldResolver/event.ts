@@ -1,11 +1,13 @@
-import { EventMemberResolvers } from '../../../types';
+import { GraphQLError } from 'graphql';
+
+import { ProposalResolvers } from '../../../types';
 import { adaptEvent, internalServerError, notFoundError } from '../../../../utils';
 
-export const event: EventMemberResolvers['event'] = async (parent, _args, context) => {
+export const event: ProposalResolvers['event'] = async (parent, _args, { db }) => {
   try {
-    const snap = await context.db
+    const snap = await db
       .collection('organizations')
-      .doc(parent.orgId)
+      .doc(parent.organizationId)
       .collection('events')
       .doc(parent.eventId)
       .get();
@@ -15,6 +17,11 @@ export const event: EventMemberResolvers['event'] = async (parent, _args, contex
     return adaptEvent(snap);
   } catch (error) {
     console.error(error);
+
+    if (error instanceof GraphQLError) {
+      throw error;
+    }
+
     throw internalServerError();
   }
 };

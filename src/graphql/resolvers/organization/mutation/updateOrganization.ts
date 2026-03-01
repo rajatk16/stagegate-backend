@@ -1,71 +1,43 @@
-import { Timestamp } from 'firebase-admin/firestore';
 import { GraphQLError } from 'graphql';
+import { Timestamp } from 'firebase-admin/firestore';
 
-import { adaptOrganization } from '../../../../utils';
 import { MutationResolvers, OrganizationMemberRole } from '../../../types';
+import {
+  notFoundError,
+  forbiddenError,
+  unauthorizedError,
+  adaptOrganization,
+  badUserInputError,
+  internalServerError,
+} from '../../../../utils';
 
 export const updateOrganization: MutationResolvers['updateOrganization'] = async (
   _,
   args,
   context,
 ) => {
-  const { organizationId, description, logo, website, isPublic } = args.input;
   const { authUser, db } = context;
+  const { organizationId, description, logo, website, isPublic } = args.input;
 
-  if (!authUser) {
-    throw new GraphQLError('Unauthorized', {
-      extensions: {
-        code: 'UNAUTHORIZED',
-        http: {
-          status: 401,
-        },
-      },
-    });
-  }
+  if (!authUser) throw unauthorizedError();
 
   try {
     const orgRef = db.collection('organizations').doc(organizationId);
     const orgSnap = await orgRef.get();
 
-    if (!orgSnap.exists) {
-      throw new GraphQLError('Organization not found.', {
-        extensions: {
-          code: 'NOT_FOUND',
-          http: {
-            status: 404,
-          },
-        },
-      });
-    }
+    if (!orgSnap.exists) throw notFoundError('Organization not found.');
 
     const memberRef = orgRef.collection('organizationMembers').doc(authUser.uid);
     const memberSnap = await memberRef.get();
 
-    if (!memberSnap.exists) {
-      throw new GraphQLError('You are not a member of this organization', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
-    }
+    if (!memberSnap.exists) throw forbiddenError('You are not a member of this organization.');
 
     const viewerRole = memberSnap.data()?.role as OrganizationMemberRole;
     const isOwner = viewerRole === OrganizationMemberRole.Owner;
     const isAdmin = viewerRole === OrganizationMemberRole.Admin;
 
-    if (!isOwner && !isAdmin) {
-      throw new GraphQLError('You are not authorized to update this organization', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
-    }
+    if (!isOwner && !isAdmin)
+      throw forbiddenError('You are not authorized to update this organization.');
 
     const updates: Record<string, any> = {
       updatedAt: Timestamp.now(),
@@ -81,54 +53,23 @@ export const updateOrganization: MutationResolvers['updateOrganization'] = async
         updates.website = website.trim() || null;
       } catch (error) {
         console.log(error);
-        throw new GraphQLError('Invalid website URL', {
-          extensions: {
-            code: 'BAD_USER_INPUT',
-            http: {
-              status: 400,
-            },
-          },
-        });
+        throw badUserInputError('Invalid website URL.');
       }
     }
 
     if (typeof logo === 'string') {
-      if (!isOwner) {
-        throw new GraphQLError('Only the owner of the organization can update the logo', {
-          extensions: {
-            code: 'FORBIDDEN',
-            http: {
-              status: 403,
-            },
-          },
-        });
-      }
+      if (!isOwner)
+        throw forbiddenError('Only the owner of the organization can update the logo.');
 
-      if (!logo.startsWith('https')) {
-        throw new GraphQLError('Invalid logo URL', {
-          extensions: {
-            code: 'BAD_USER_INPUT',
-            http: {
-              status: 400,
-            },
-          },
-        });
-      }
+      if (!logo.startsWith('https')) throw badUserInputError('Invalid logo URL.');
+
       updates.logo = logo;
     }
 
     if (typeof isPublic === 'boolean') {
       if (!isOwner) {
-        throw new GraphQLError(
-          'Only the owner of the organization can update the public status',
-          {
-            extensions: {
-              code: 'FORBIDDEN',
-              http: {
-                status: 403,
-              },
-            },
-          },
+        throw forbiddenError(
+          'Only the owner of the organization can update the public status.',
         );
       }
       updates.isPublic = isPublic;
@@ -145,13 +86,6 @@ export const updateOrganization: MutationResolvers['updateOrganization'] = async
       throw error;
     }
 
-    throw new GraphQLError('Internal server error', {
-      extensions: {
-        code: 'INTERNAL_SERVER_ERROR',
-        http: {
-          status: 500,
-        },
-      },
-    });
+    throw internalServerError();
   }
 };

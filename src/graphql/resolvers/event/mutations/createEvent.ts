@@ -1,7 +1,6 @@
 import { GraphQLError } from 'graphql';
 import { Timestamp } from 'firebase-admin/firestore';
 
-import { generateUniqueSlug } from '../../../../utils';
 import { EventMemberModel, EventModel } from '../../../models';
 import {
   EventStatus,
@@ -9,22 +8,21 @@ import {
   MutationResolvers,
   OrganizationMemberRole,
 } from '../../../types';
+import {
+  notFoundError,
+  forbiddenError,
+  badUserInputError,
+  unauthorizedError,
+  generateUniqueSlug,
+  internalServerError,
+} from '../../../../utils';
 
 export const createEvent: MutationResolvers['createEvent'] = async (
   _,
   { input },
   { authUser, db },
 ) => {
-  if (!authUser) {
-    throw new GraphQLError('Unauthorized', {
-      extensions: {
-        code: 'UNAUTHORIZED',
-        http: {
-          status: 401,
-        },
-      },
-    });
-  }
+  if (!authUser) throw unauthorizedError();
 
   const {
     coverImage,
@@ -45,14 +43,7 @@ export const createEvent: MutationResolvers['createEvent'] = async (
     const orgSnap = await orgRef.get();
 
     if (!orgSnap.exists) {
-      throw new GraphQLError('Organization not found', {
-        extensions: {
-          code: 'NOT_FOUND',
-          http: {
-            status: 404,
-          },
-        },
-      });
+      throw notFoundError('Organization not found');
     }
 
     const orgMemberSnap = await orgRef
@@ -60,46 +51,19 @@ export const createEvent: MutationResolvers['createEvent'] = async (
       .doc(authUser.uid)
       .get();
 
-    if (!orgMemberSnap.exists) {
-      throw new GraphQLError('You are not a member of this organization', {
-        extensions: {
-          code: 'FORBIDDEN',
-          http: {
-            status: 403,
-          },
-        },
-      });
-    }
+    if (!orgMemberSnap.exists)
+      throw forbiddenError('You are not a member of this organization');
 
     const viewerOrgRole = orgMemberSnap.data()?.role as OrganizationMemberRole;
 
     if (
       viewerOrgRole !== OrganizationMemberRole.Admin &&
       viewerOrgRole !== OrganizationMemberRole.Owner
-    ) {
-      throw new GraphQLError(
-        'You are not authorized to create an event for this organization',
-        {
-          extensions: {
-            code: 'FORBIDDEN',
-            http: {
-              status: 403,
-            },
-          },
-        },
-      );
-    }
+    )
+      throw forbiddenError('You are not authorized to create an event for this organization');
 
-    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
-      throw new GraphQLError('Start date must be before end date', {
-        extensions: {
-          code: 'BAD_USER_INPUT',
-          http: {
-            status: 400,
-          },
-        },
-      });
-    }
+    if (startDate && endDate && new Date(startDate) > new Date(endDate))
+      throw badUserInputError('Start date must be before end date');
 
     const nameCheckSnap = await db
       .collection('events')
@@ -107,16 +71,7 @@ export const createEvent: MutationResolvers['createEvent'] = async (
       .limit(1)
       .get();
 
-    if (!nameCheckSnap.empty) {
-      throw new GraphQLError('An event with this name already exists', {
-        extensions: {
-          code: 'BAD_USER_INPUT',
-          http: {
-            status: 400,
-          },
-        },
-      });
-    }
+    if (!nameCheckSnap.empty) throw badUserInputError('An event with this name already exists');
 
     const slug = generateUniqueSlug(name);
 
@@ -126,16 +81,7 @@ export const createEvent: MutationResolvers['createEvent'] = async (
       .limit(1)
       .get();
 
-    if (!slugCheckSnap.empty) {
-      throw new GraphQLError('An event with this slug already exists', {
-        extensions: {
-          code: 'BAD_USER_INPUT',
-          http: {
-            status: 400,
-          },
-        },
-      });
-    }
+    if (!slugCheckSnap.empty) throw badUserInputError('An event with this slug already exists');
 
     const eventRef = orgRef.collection('events').doc();
     const eventId = eventRef.id;
@@ -202,13 +148,6 @@ export const createEvent: MutationResolvers['createEvent'] = async (
       throw error;
     }
 
-    throw new GraphQLError('Internal server error', {
-      extensions: {
-        code: 'INTERNAL_SERVER_ERROR',
-        http: {
-          status: 500,
-        },
-      },
-    });
+    throw internalServerError();
   }
 };

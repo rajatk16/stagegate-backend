@@ -2,30 +2,30 @@ import { Resolvers } from '../../types';
 import { createEvent, updateEvent } from './mutations';
 import { organizationEvents, eventBySlug } from './query';
 import {
-  members,
-  organization,
-  viewerEventRole,
-  viewerOrgRole,
-  startDate,
   endDate,
+  members,
   createdAt,
+  startDate,
   updatedAt,
+  organization,
+  viewerOrgRole,
+  viewerEventRole,
 } from './fieldResolvers';
 
 export const resolvers: Resolvers = {
   Event: {
+    endDate,
     members,
+    createdAt,
+    startDate,
+    updatedAt,
     organization,
     viewerOrgRole,
     viewerEventRole,
-    startDate,
-    endDate,
-    createdAt,
-    updatedAt,
   },
   Query: {
-    organizationEvents,
     eventBySlug,
+    organizationEvents,
   },
   Mutation: {
     createEvent,
