@@ -1,4 +1,4 @@
-import { adaptUser, internalServerError, notFoundError } from 'src/utils';
+import { adaptUser, internalServerError, notFoundError } from '../../../../utils';
 import { ProposalResolvers } from '../../../types';
 import { GraphQLError } from 'graphql';
 

@@ -15,7 +15,7 @@ import {
   badUserInputError,
   unauthorizedError,
   internalServerError,
-} from 'src/utils';
+} from '../../../../utils';
 
 const MAX_BATCH_SIZE = 100;
 

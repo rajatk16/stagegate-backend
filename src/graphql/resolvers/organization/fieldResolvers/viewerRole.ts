@@ -1,4 +1,4 @@
-import { internalServerError } from 'src/utils';
+import { internalServerError } from '../../../../utils';
 import { OrganizationMemberRole, OrganizationResolvers } from '../../../types';
 
 export const viewerRole: OrganizationResolvers['viewerRole'] = async (
