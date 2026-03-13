@@ -1,4 +1,5 @@
 import { Resolvers } from '../../types';
+import { eventProposals } from './queries';
 import { bulkCreateProposals } from './mutation';
 import {
   event,
@@ -11,6 +12,9 @@ import {
 } from './fieldResolver';
 
 export const resolvers: Resolvers = {
+  Query: {
+    eventProposals,
+  },
   Mutation: {
     bulkCreateProposals,
   },
