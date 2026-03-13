@@ -1,26 +1,32 @@
-import { Timestamp } from 'firebase-admin/firestore';
-
 import { EventResolvers } from '../../../types';
+import { decodeCursor, DEFAULT_PAGINATION_LIMIT, encodeCursor } from '../../../../utils';
 
-export const members: EventResolvers['members'] = async (parent, args, { db }) => {
-  const { first, after } = args;
-
-  let query = db
+export const members: EventResolvers['members'] = async (parent, { pagination }, { db }) => {
+  const eventMembersRef = db
     .collection('organizations')
     .doc(parent.organizationId)
     .collection('events')
     .doc(parent.id)
-    .collection('eventMembers')
-    .orderBy('joinedAt', 'desc')
-    .limit(first);
+    .collection('eventMembers');
 
-  if (after) {
-    const afterDate = new Date(after);
-    const afterTimestamp = Timestamp.fromDate(afterDate);
-    query = query.startAfter(afterTimestamp);
+  const totalSnapshot = await eventMembersRef.count().get();
+  const total = totalSnapshot.data().count;
+
+  let offset = 0;
+  let limit = DEFAULT_PAGINATION_LIMIT;
+
+  if (pagination?.cursor) {
+    const decoded = decodeCursor(pagination.cursor);
+    limit = decoded.limit;
+    offset = decoded.offset;
+  } else if (pagination?.limit) {
+    limit = pagination.limit;
   }
-
-  const snapshot = await query.get();
+  const snapshot = await eventMembersRef
+    .orderBy('joinedAt', 'desc')
+    .offset(offset)
+    .limit(limit)
+    .get();
 
   const results = snapshot.docs.map((doc) => {
     const data = doc.data();
@@ -34,13 +40,13 @@ export const members: EventResolvers['members'] = async (parent, args, { db }) =
     };
   });
 
-  const lastDoc = snapshot.docs[snapshot.docs.length - 1];
-  const nextCursor = lastDoc ? lastDoc.data().joinedAt.toDate().toISOString() : null;
+  const nextOffset = offset + results.length;
+  const nextCursor = nextOffset < total ? encodeCursor(limit, nextOffset) : null;
 
   return {
     pagination: {
       cursor: nextCursor,
-      pageSize: results.length,
+      total,
     },
     results,
   };

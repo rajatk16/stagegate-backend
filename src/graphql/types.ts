@@ -132,8 +132,7 @@ export type Event = {
 };
 
 export type EventMembersArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 export enum EventFormat {
@@ -174,6 +173,12 @@ export type EventMembers = {
   __typename?: 'EventMembers';
   pagination?: Maybe<Pagination>;
   results: Array<EventMember>;
+};
+
+export type EventProposalsPayload = {
+  __typename?: 'EventProposalsPayload';
+  pagination: Pagination;
+  proposals?: Maybe<Array<Maybe<Proposal>>>;
 };
 
 export enum EventStatus {
@@ -308,8 +313,7 @@ export type Organization = {
 };
 
 export type OrganizationMembersArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 export type OrganizationMember = {
@@ -334,7 +338,13 @@ export type OrganizationMembers = {
 export type Pagination = {
   __typename?: 'Pagination';
   cursor?: Maybe<Scalars['String']['output']>;
-  pageSize?: Maybe<Scalars['Int']['output']>;
+  total: Scalars['Int']['output'];
+};
+
+export type PaginationInput = {
+  /** Base64 encoded cursor containing limit and offset values */
+  cursor?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type Proposal = {
@@ -394,6 +404,7 @@ export type Query = {
   __typename?: 'Query';
   authStatus?: Maybe<AuthStatus>;
   eventBySlug: Event;
+  eventProposals: EventProposalsPayload;
   me?: Maybe<User>;
   myOrganizations: Array<Organization>;
   organizationBySlug: Organization;
@@ -404,6 +415,12 @@ export type Query = {
 export type QueryEventBySlugArgs = {
   eventSlug: Scalars['String']['input'];
   organizationSlug: Scalars['String']['input'];
+};
+
+export type QueryEventProposalsArgs = {
+  eventId: Scalars['ID']['input'];
+  organizationId: Scalars['ID']['input'];
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 export type QueryOrganizationBySlugArgs = {
@@ -614,6 +631,11 @@ export type ResolversTypes = {
   EventMembers: ResolverTypeWrapper<
     Omit<EventMembers, 'results'> & { results: Array<ResolversTypes['EventMember']> }
   >;
+  EventProposalsPayload: ResolverTypeWrapper<
+    Omit<EventProposalsPayload, 'proposals'> & {
+      proposals?: Maybe<Array<Maybe<ResolversTypes['Proposal']>>>;
+    }
+  >;
   EventStatus: EventStatus;
   EventType: EventType;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
@@ -635,6 +657,7 @@ export type ResolversTypes = {
     }
   >;
   Pagination: ResolverTypeWrapper<Pagination>;
+  PaginationInput: PaginationInput;
   Proposal: ResolverTypeWrapper<ProposalModel>;
   ProposalFormat: ProposalFormat;
   ProposalInput: ProposalInput;
@@ -676,6 +699,9 @@ export type ResolversParentTypes = {
   EventMembers: Omit<EventMembers, 'results'> & {
     results: Array<ResolversParentTypes['EventMember']>;
   };
+  EventProposalsPayload: Omit<EventProposalsPayload, 'proposals'> & {
+    proposals?: Maybe<Array<Maybe<ResolversParentTypes['Proposal']>>>;
+  };
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
   JoinOrganizationInput: JoinOrganizationInput;
@@ -692,6 +718,7 @@ export type ResolversParentTypes = {
     results: Array<ResolversParentTypes['OrganizationMember']>;
   };
   Pagination: Pagination;
+  PaginationInput: PaginationInput;
   Proposal: ProposalModel;
   ProposalInput: ProposalInput;
   Query: Record<PropertyKey, never>;
@@ -773,7 +800,7 @@ export type EventResolvers<
     ResolversTypes['EventMembers'],
     ParentType,
     ContextType,
-    RequireFields<EventMembersArgs, 'first'>
+    Partial<EventMembersArgs>
   >;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   organization?: Resolver<ResolversTypes['Organization'], ParentType, ContextType>;
@@ -818,6 +845,19 @@ export type EventMembersResolvers<
 > = {
   pagination?: Resolver<Maybe<ResolversTypes['Pagination']>, ParentType, ContextType>;
   results?: Resolver<Array<ResolversTypes['EventMember']>, ParentType, ContextType>;
+};
+
+export type EventProposalsPayloadResolvers<
+  ContextType = DataSourceContext,
+  ParentType extends
+    ResolversParentTypes['EventProposalsPayload'] = ResolversParentTypes['EventProposalsPayload'],
+> = {
+  pagination?: Resolver<ResolversTypes['Pagination'], ParentType, ContextType>;
+  proposals?: Resolver<
+    Maybe<Array<Maybe<ResolversTypes['Proposal']>>>,
+    ParentType,
+    ContextType
+  >;
 };
 
 export type LeaveOrganizationPayloadResolvers<
@@ -937,7 +977,7 @@ export type OrganizationResolvers<
     ResolversTypes['OrganizationMembers'],
     ParentType,
     ContextType,
-    RequireFields<OrganizationMembersArgs, 'first'>
+    Partial<OrganizationMembersArgs>
   >;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   owner?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
@@ -975,7 +1015,7 @@ export type PaginationResolvers<
   ParentType extends ResolversParentTypes['Pagination'] = ResolversParentTypes['Pagination'],
 > = {
   cursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  pageSize?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
 };
 
 export type ProposalResolvers<
@@ -1012,6 +1052,12 @@ export type QueryResolvers<
     ParentType,
     ContextType,
     RequireFields<QueryEventBySlugArgs, 'eventSlug' | 'organizationSlug'>
+  >;
+  eventProposals?: Resolver<
+    ResolversTypes['EventProposalsPayload'],
+    ParentType,
+    ContextType,
+    RequireFields<QueryEventProposalsArgs, 'eventId' | 'organizationId'>
   >;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   myOrganizations?: Resolver<Array<ResolversTypes['Organization']>, ParentType, ContextType>;
@@ -1079,6 +1125,7 @@ export type Resolvers<ContextType = DataSourceContext> = {
   EventLocation?: EventLocationResolvers<ContextType>;
   EventMember?: EventMemberResolvers<ContextType>;
   EventMembers?: EventMembersResolvers<ContextType>;
+  EventProposalsPayload?: EventProposalsPayloadResolvers<ContextType>;
   LeaveOrganizationPayload?: LeaveOrganizationPayloadResolvers<ContextType>;
   Location?: LocationResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
