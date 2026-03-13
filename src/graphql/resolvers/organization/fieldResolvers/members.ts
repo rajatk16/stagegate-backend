@@ -1,24 +1,35 @@
-import { Timestamp } from 'firebase-admin/firestore';
-
 import { OrganizationResolvers } from '../../../types';
+import { decodeCursor, DEFAULT_PAGINATION_LIMIT, encodeCursor } from '../../../../utils';
 
-export const members: OrganizationResolvers['members'] = async (parent, args, context) => {
-  const { first, after } = args;
-
-  let query = context.db
+export const members: OrganizationResolvers['members'] = async (
+  parent,
+  { pagination },
+  context,
+) => {
+  const organizationMembersRef = context.db
     .collection('organizations')
     .doc(parent.id)
-    .collection('organizationMembers')
-    .orderBy('joinedAt', 'desc')
-    .limit(first);
+    .collection('organizationMembers');
 
-  if (after) {
-    const afterDate = new Date(after);
-    const afterTimestamp = Timestamp.fromDate(afterDate);
-    query = query.startAfter(afterTimestamp);
+  const totalSnapshot = await organizationMembersRef.count().get();
+  const total = totalSnapshot.data().count;
+
+  let offset = 0;
+  let limit = DEFAULT_PAGINATION_LIMIT;
+
+  if (pagination?.cursor) {
+    const decoded = decodeCursor(pagination.cursor);
+    limit = decoded.limit;
+    offset = decoded.offset;
+  } else if (pagination?.limit) {
+    limit = pagination.limit;
   }
 
-  const snapshot = await query.get();
+  const snapshot = await organizationMembersRef
+    .orderBy('joinedAt', 'desc')
+    .offset(offset)
+    .limit(limit)
+    .get();
 
   const results = snapshot.docs.map((doc) => {
     const data = doc.data();
@@ -31,13 +42,13 @@ export const members: OrganizationResolvers['members'] = async (parent, args, co
     };
   });
 
-  const lastDoc = snapshot.docs[snapshot.docs.length - 1];
-  const nextCursor = lastDoc ? lastDoc.data().joinedAt.toDate().toISOString() : null;
+  const nextOffset = offset + results.length;
+  const nextCursor = nextOffset < total ? encodeCursor(limit, nextOffset) : null;
 
   return {
     pagination: {
       cursor: nextCursor,
-      pageSize: results.length,
+      total,
     },
     results,
   };

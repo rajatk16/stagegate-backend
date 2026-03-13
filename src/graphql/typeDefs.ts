@@ -36,6 +36,15 @@ export const typeDefs = gql`
 
     # Get a single event by its slug
     eventBySlug(organizationSlug: String!, eventSlug: String!): Event!
+
+    # Proposal Queries
+
+    # Get proposals of an event (ADMIN Role required in Event and/or Organization)
+    eventProposals(
+      organizationId: ID!
+      eventId: ID!
+      pagination: PaginationInput
+    ): EventProposalsPayload!
   }
 
   type Mutation {
@@ -176,7 +185,7 @@ export const typeDefs = gql`
     # The owner of the organization
     owner: User!
     # Members of the organization
-    members(first: Int = 20, after: String): OrganizationMembers!
+    members(pagination: PaginationInput): OrganizationMembers!
     # The date and time the organization was created
     createdAt: DateTime!
     # The date and time the organization was last updated
@@ -244,7 +253,7 @@ export const typeDefs = gql`
     # The format of the event
     format: EventFormat!
     # The members of the event
-    members(first: Int = 20, after: String): EventMembers!
+    members(pagination: PaginationInput): EventMembers!
     # The status of the event
     status: EventStatus!
     # The role of the current user in the parent organization
@@ -407,8 +416,8 @@ export const typeDefs = gql`
   type Pagination {
     # The address of the next page, if one exists. If the current page is the last page, "cursor" is "null".
     cursor: String
-    # The number of items in the current page.
-    pageSize: Int
+    # Total number of items
+    total: Int!
   }
 
   # Location Input Type. Represents a location input in the system.
@@ -630,6 +639,14 @@ export const typeDefs = gql`
     speakerContactInfo: ContactInfoInput
   }
 
+  # Pagination Input Type. Represents a pagination input in the system.
+  input PaginationInput {
+    "Base64 encoded cursor containing limit and offset values"
+    cursor: String
+    # The maximum limit of items to be returned. If not provided, the default limit is 20. If cursor is provided, limit is ignored.
+    limit: Int
+  }
+
   # Auth Payload Type. Represents an auth payload in the system.
   type AuthPayload {
     # The unique identifier for the user
@@ -665,5 +682,13 @@ export const typeDefs = gql`
     created: Int!
     # The number of proposals that were not created
     skipped: Int!
+  }
+
+  # Event Proposals Payload Type. Represents an event proposals payload in the system.
+  type EventProposalsPayload {
+    # The proposals present in an event. Null if user does not have Admin/Organizer/Owner Role in the event or parent org.
+    proposals: [Proposal]
+    # The pagination info
+    pagination: Pagination!
   }
 `;
